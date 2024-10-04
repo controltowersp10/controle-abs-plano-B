@@ -11,6 +11,7 @@
    padding: 0;
    font-family: Arial, Helvetica, sans-serif;
    color: var(--color3);
+   overflow-x: hidden;
 }
 
 body {
@@ -69,8 +70,8 @@ header {
 
 /* Barra lateral */
 .side-bar {
-   width: 200px;
-   height: 90vh;
+   width: 150px;
+   height: 95vh;
    background-color: var(--color2);
    padding: 10px;
    float: left;
@@ -102,10 +103,10 @@ header {
 
 /* Main */
 main {
-   padding: 10px;
+   padding: 0px;
    margin-top: 2rem;
    float: right;
-   width: calc(100% - 220px); /* Ajuste a largura considerando a barra lateral */
+   width: calc(100% - 190px); /* Ajuste a largura considerando a barra lateral */
    box-sizing: border-box;
 }
 
@@ -132,7 +133,7 @@ main {
 }
 
 .container-main .campo-de-pesquisa {
-   width: 100%;
+   width: auto;
    height: 150px;
    align-items: center;
    display: flex;
@@ -169,19 +170,22 @@ main {
 /* Estilo para a tabela */
 .container-main .container-tabela {
    width: 100%;
-   overflow-x: auto; /* Permite rolagem horizontal se a tabela for muito larga */
+   max-height: 550px; /* Altura máxima para 30 linhas (ajustável) */
+   overflow-x: auto; 
 }
 
 table {
-   width: 100%;
+   width: auto;
    border-collapse: collapse;
    margin-top: 20px;
    font-weight: 600;
    color: var(--color3);
+   overflow-y: auto;  /* Rolagem vertical *//
 }
 
 table, th, td {
    border: 1px solid var(--color4);
+   
 }
 
 th, td {
@@ -195,6 +199,7 @@ th {
    background-color: var(--color4);
    font-weight: bold;
    color: #000000;
+   padding: 4px;
 }
 
 /* Estilo para as linhas alternadas */
@@ -208,18 +213,8 @@ tbody tr:hover {
 }
 
 /* Estilo para as células vazias (quando nenhum dado é encontrado) */
-td[colspan="15"] {
+td[colspan="17"] {
    text-align: center;
    color: #888;
    font-style: italic;
-}
-
-.StatusReal {
-   background-color: var(--color1);
-   width: 100%;
-   border-style: none;
-}
-
-.StatusReal:hover {
-   background-color: var(--color5);
 }

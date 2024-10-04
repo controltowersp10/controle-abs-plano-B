@@ -91,7 +91,8 @@ const Relatorio = () => {
                                     <th>Turma</th>
                                     <th>Data</th>
                                     <th>Status</th>
-                                    <th>Status Real</th>
+                                    <th>Status auto</th>
+                                    <th>Status TL</th>
                                     <th>Justificativa</th>
                                 </tr>
                             </thead>
@@ -110,15 +111,16 @@ const Relatorio = () => {
                                             <td>{item.Area}</td> 
                                             <td>{item.Status}</td> 
                                             <td>{item.Turma}</td>
-                                            <td>{item.Data}</td>
+                                            <td>{item.data}</td>
                                             <td>{item.Status}</td>
-                                            <td>{item.StatusReal}</td>
+                                            <td>{item.StatusR}</td>
+                                            <td>{item.StatusT}</td>
                                             <td>{item.Justificativa}</td>
                                         </tr>
                                     ))
                                 ) : (
                                     <tr>
-                                        <td colSpan="15">Nenhum dado disponível</td>
+                                        <td colSpan="17">Nenhum dado disponível</td>
                                     </tr>
                                 )}
                             </tbody>
