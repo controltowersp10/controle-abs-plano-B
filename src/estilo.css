@@ -1,0 +1,225 @@
+:root {
+   --color1: #2e2e30; /* Fundo */
+   --color2: #242424; /* Side & Header */
+   --color3: #dddbd8; /* Texto */
+   --color4: #ffa500; /* Texto 2 */
+   --color5: #de9000; /* Hover */
+}
+
+* {
+   margin: 0;
+   padding: 0;
+   font-family: Arial, Helvetica, sans-serif;
+   color: var(--color3);
+}
+
+body {
+   background-color: var(--color1);
+}
+
+/* Cabeçalho do site */
+header {
+   width: 100%;
+   height: auto;
+   background-color: var(--color2);
+   padding: 10px;
+}
+
+.container-header {
+   display: flex;
+   justify-content: space-between;
+}
+
+.container-header .img {
+   width: 200px;
+   display: flex;
+}
+
+.img img {
+   width: 70px;
+   padding: 0;
+}
+
+.img h1 {
+   margin-top: 10%;
+   margin-left: 8px;
+}
+
+.menu {
+   width: 35%;
+   display: flex;
+   align-items: center;
+   justify-content: space-evenly;
+}
+
+.menu button {
+   background-color: var(--color5);
+   border-style: none;
+   padding: 10px;
+   height: 40px;
+   border-radius: 4px;
+   font-weight: bold;
+   color: var(--color3);
+}
+
+.menu button:hover {
+   background-color: var(--color4);
+   color: var(--color3);
+}
+
+/* Barra lateral */
+.side-bar {
+   width: 200px;
+   height: 90vh;
+   background-color: var(--color2);
+   padding: 10px;
+   float: left;
+   box-sizing: border-box;
+}
+
+.container-side {
+   width: 100%;
+   height: 100%;
+}
+
+.container-side li {
+   list-style: none;
+   margin-bottom: 1rem;
+}
+
+.container-side li a {
+   color: var(--color4);
+   font-weight: bold;
+   text-decoration: none;
+   margin-left: 10px;
+   margin-bottom: 1rem;
+}
+
+.container-side li a:hover {
+   color: var(--color3);
+   font-size: large;
+}
+
+/* Main */
+main {
+   padding: 10px;
+   margin-top: 2rem;
+   float: right;
+   width: calc(100% - 220px); /* Ajuste a largura considerando a barra lateral */
+   box-sizing: border-box;
+}
+
+.container-main {
+   width: 100%;
+   margin: auto;
+}
+
+.container-main h1 {
+   text-align: center;
+   font-size: 35px;
+   color: var(--color3);
+   margin-bottom: 2rem;
+}
+
+.container-main span {
+   color: var(--color4);
+   font-weight: bold;
+}
+
+.container-main p {
+   text-align: justify;
+   font-size: 20px;
+}
+
+.container-main .campo-de-pesquisa {
+   width: 100%;
+   height: 150px;
+   align-items: center;
+   display: flex;
+}
+
+.campo-de-pesquisa label {
+   font-weight: bold;
+   color: var(--color3);
+}
+
+.campo-de-pesquisa input {
+   border-radius: 8px;
+   border-style: solid;
+   border-color: var(--color4);
+   margin-left: 1rem;
+   margin-right: 1rem;
+   padding: 0.2rem;
+   background-color: var(--color1);
+   color: var(--color3);
+   outline-color: var(--color4);
+}
+
+.campo-de-pesquisa button {
+   background-color: var(--color5);
+   border-style: none;
+   width: 150px;
+   height: 40px;
+   border-radius: 4px;
+   font-weight: bold;
+   color: var(--color3);
+   margin-left: 3rem;
+}
+
+/* Estilo para a tabela */
+.container-main .container-tabela {
+   width: 100%;
+   overflow-x: auto; /* Permite rolagem horizontal se a tabela for muito larga */
+}
+
+table {
+   width: 100%;
+   border-collapse: collapse;
+   margin-top: 20px;
+   font-weight: 600;
+   color: var(--color3);
+}
+
+table, th, td {
+   border: 1px solid var(--color4);
+}
+
+th, td {
+   padding: 4px;
+   text-align: left;
+   font-size: 14px;
+}
+
+/* Estilo para o cabeçalho da tabela */
+th {
+   background-color: var(--color4);
+   font-weight: bold;
+   color: #000000;
+}
+
+/* Estilo para as linhas alternadas */
+tbody tr:nth-child(even) {
+   background-color: #f9f9f95e;
+}
+
+/* Estilo para as linhas ao passar o mouse */
+tbody tr:hover {
+   background-color: var(--color5);
+}
+
+/* Estilo para as células vazias (quando nenhum dado é encontrado) */
+td[colspan="15"] {
+   text-align: center;
+   color: #888;
+   font-style: italic;
+}
+
+.StatusReal {
+   background-color: var(--color1);
+   width: 100%;
+   border-style: none;
+}
+
+.StatusReal:hover {
+   background-color: var(--color5);
+}
