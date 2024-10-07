@@ -8,23 +8,24 @@ const Write = () => {
     let [inputValue2, setInputValue2] = useState("")
 
     const savedata = async () => {
-        const db = getDatabase(app)
-        const newDocRef = push(ref(db, "nature/fruits"))
+        const db = getDatabase(app) // Certifique-se de que app está inicializado corretamente com a URL raiz
+        const newDocRef = push(ref(db, "nature/fruits")) // "nature/fruits" está correto
         set(newDocRef, {
             FruitName: inputValue1,
             FruitDefinition: inputValue2
-        }).then( () => {
+        }).then(() => {
             alert("Data saved")
         }).catch((error) => {
-            alert("Error: ", error.message)
+            alert("Error: " + error.message)
         })
     }
+    
     return(
         <>
             <input type="text" value={inputValue1} onChange={(e) => setInputValue1(e.target.value)}/>
             <input type="text" value={inputValue2} onChange={(e) => setInputValue2(e.target.value)}/>
             <br/>
-            <button onclick={savedata}>Save Data</button>
+            <button onClick={savedata}>Save Data</button>
         </>
     )
 }
