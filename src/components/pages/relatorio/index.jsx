@@ -1,7 +1,12 @@
+
+
 import '../../../estilo.css'; // Corrigido para garantir que o CSS seja importado corretamente
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import Logo from "../../../assets/img/logoABS.png"
+
+
+
 const Relatorio = () => {
     const [relatorioData, setRelatorioData] = useState([]); // Estado para armazenar os dados do relatório
 
@@ -56,6 +61,7 @@ const Relatorio = () => {
                     <ul>
                         <li><Link to="/home">Home</Link></li>
                         <li><Link to="/">Relatório</Link></li>
+                        <li><Link to="/Write">Write page</Link></li>
                     </ul>
                 </div>
             </div>
