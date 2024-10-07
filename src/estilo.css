@@ -23,7 +23,7 @@ header {
    width: 100%;
    height: auto;
    background-color: var(--color2);
-   padding: 10px;
+   padding: 5px;
 }
 
 .container-header {
@@ -33,12 +33,12 @@ header {
 
 .container-header .img {
    width: 200px;
-   display: flex;
+   padding: 0;
+   margin-left: 1rem;
 }
 
 .img img {
-   width: 70px;
-   padding: 0;
+   width: 100%;
 }
 
 .img h1 {

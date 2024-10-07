@@ -1,7 +1,7 @@
 import '../../../estilo.css'; // Corrigido para garantir que o CSS seja importado corretamente
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
-
+import Logo from "../../../assets/img/logoABS.png"
 const Relatorio = () => {
     const [relatorioData, setRelatorioData] = useState([]); // Estado para armazenar os dados do relatório
 
@@ -38,14 +38,15 @@ const Relatorio = () => {
             <header>
                 <div className="container-header">
                     <div className="img">
-                        <a href="home.html"><img src="Logo2.png" alt="ID/EA" /></a>
-                        <h1>ID/EA</h1>
+                        <Link to="/home">
+                            <img src={Logo} alt="ID/EA"/>
+                        </Link>
                     </div>
                     <div className="menu">
                         <button onClick={() => alert("Navegar para Dashboard ABS")}>Dashboard ABS</button>
                         <button onClick={() => alert("Navegar para Dashboard Feedback")}>Dashboard Feedback</button>
-                        <button onClick={() => alert("Navegar para Site ID/EA")}>Site ID/EA</button>
-                        <button onClick={() => alert("Ler Relatório")}>ler</button>
+                        <button onClick={() => window.location.href = "https://sites.google.com/mercadolivre.com/idea-sp10?usp=sharing"}>Site ID/EA-SP10</button>
+                        <button onClick={() => alert("Ler Relatório")}>Sobre</button>
                     </div>
                 </div>
             </header>
