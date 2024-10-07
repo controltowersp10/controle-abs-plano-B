@@ -1,6 +1,7 @@
 import React, { useState } from "react"
 import app from "../../firebaseConfig.jsx"
 import { getDatabase, ref, set, push } from "firebase/database"
+import { Link } from "react-router-dom"
 
 const Write = () => {
 
@@ -14,7 +15,7 @@ const Write = () => {
             FruitName: inputValue1,
             FruitDefinition: inputValue2
         }).then(() => {
-            alert("Data saved")
+            alert("seus dados foram salvos com sucesso !!!!!")
         }).catch((error) => {
             alert("Error: " + error.message)
         })
@@ -26,6 +27,8 @@ const Write = () => {
             <input type="text" value={inputValue2} onChange={(e) => setInputValue2(e.target.value)}/>
             <br/>
             <button onClick={savedata}>Save Data</button>
+            <br/> <br/>
+            <Link to="/">relatorio</Link>
         </>
     )
 }

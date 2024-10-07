@@ -62,6 +62,7 @@ const Relatorio = () => {
                         <li><Link to="/home">Home</Link></li>
                         <li><Link to="/">Relatório</Link></li>
                         <li><Link to="/Write">Write page</Link></li>
+                        <li><Link to="/Read">Read page</Link></li>
                     </ul>
                 </div>
             </div>
