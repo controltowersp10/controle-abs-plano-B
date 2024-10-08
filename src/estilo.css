@@ -50,16 +50,19 @@ header {
 }
 
 .menu {
-   width: 35%;
+   width: auto;
    display: flex;
    align-items: center;
    justify-content: space-evenly;
+   gap: 10px;
+   margin-right: 2rem;
+   height: auto;
 }
 
 .menu button {
    background-color: var(--color4);
    border-style: none;
-   padding: 10px;
+   padding: 6px;
    height: 40px;
    border-radius: 4px;
    font-weight: bold;
@@ -70,10 +73,13 @@ header {
    background-color: var(--color4);
    color: var(--color3);
 }
+.menu button:active {
+   background-color: var(--color5); /* Cor do botão ao ser clicado */
+   transform: scale(0.95); /* Leve efeito de redução ao clicar */}
 
 /* Barra lateral */
 .side-bar {
-   width: 150px;
+   width: 180px;
    height: 100vh;
    background-color: var(--color2);
    padding: 10px;
@@ -181,7 +187,10 @@ main {
    color: var(--color3);
    margin-left: 3rem;
 }
-
+.campo-de-pesquisa button:active {
+   background-color: var(--color2); /* Cor do botão ao ser clicado */
+   transform: scale(0.95); /* Leve efeito de redução ao clicar */
+}
 /* Estilo para a tabela */
 .container-main .container-tabela {
    width: 100%;  
@@ -200,6 +209,22 @@ table {
    color: var(--color3);
 }
 
+table::-webkit-scrollbar {
+   padding: 0;
+   height: 9px;
+}
+
+table::-webkit-scrollbar-track {
+   background: var(--color2);
+}
+
+table::-webkit-scrollbar-thumb {
+   background: var(--color5);
+}
+
+table::-webkit-scrollbar-thumb:hover {
+   background: var(--color4);
+}
 table select{
    background-color: var(--color4);
    border-style: none;
@@ -233,7 +258,7 @@ td{
    font-size: 14px;
    white-space: nowrap; /* Impedir quebra de linha nas células */
 }
-td button{
+td button {
    background-color: var(--color4);
    border-style: none;
    padding: 5px;
@@ -241,7 +266,19 @@ td button{
    border-radius: 4px;
    font-weight: bold;
    color: var(--color3);
+   transition: background-color 0.2s ease, transform 0.1s ease; /* Suavizar a transição */
 }
+
+td button:hover {
+   background-color: var(--color2); /* Mudar cor ao passar o mouse */
+   color: var(--color3);
+}
+
+td button:active {
+   background-color: var(--color2); /* Cor do botão ao ser clicado */
+   transform: scale(0.95); /* Leve efeito de redução ao clicar */
+}
+
 
 /* Estilo para o cabeçalho da tabela */
 th {

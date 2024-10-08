@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import app from "../../../firebaseConfig.jsx";
 import { getDatabase, ref, get, set } from "firebase/database";
-import { useNavigate } from "react-router-dom";
 import '../../../estilo.css';
 import Navbar from '../../Navbar';
 import SideBar from '../../SideBar';
@@ -103,13 +102,13 @@ const RelatorioEUpdate = () => {
                     <div className="campo-de-pesquisa">
 
                         <label htmlFor="NomeTL">Nome:</label>
-                        <input type="text" id="NomeTL" name="NomeTL" value={searchNome} onChange={(e) => setSearchNome(e.target.value)}/>
+                        <input type="text" id="NomeTL" name="NomeTL" value={searchNome} onChange={(e) => setSearchNome(e.target.value)} placeholder="Digite seu nome"/>
 
                         <label htmlFor="RETL">RE:</label>
-                        <input type="text" id="RETL" name="RETL" value={searchRE} onChange={(e) => setSearchRE(e.target.value)}/>
+                        <input type="text" id="RETL" name="RETL" value={searchRE} onChange={(e) => setSearchRE(e.target.value)} placeholder="Digite seu RE"/>
 
                         <label htmlFor="data">Data do relatório:</label>
-                        <input type="date" id="data" name="data"  value={searchData} onChange={(e) => setSearchData(e.target.value)} />
+                        <input type="date" id="data" name="data"  value={searchData} onChange={(e) => setSearchData(e.target.value)}/>
 
                         <button onClick={handleGenerateReport}>Gerar Relatório</button>
                     </div>
@@ -174,7 +173,7 @@ const RelatorioEUpdate = () => {
                                     ))
                                 ) : (
                                     <tr>
-                                        <td colSpan="15">Nenhum dado disponível</td>
+                                        <td colSpan="17">Nenhum dado disponível</td>
                                     </tr>
                                 )}
                             </tbody>

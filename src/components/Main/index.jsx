@@ -4,7 +4,7 @@ const Mainpage = () => {
     return(
         <>
             <div className="main">
-                <div className="container-main"> {/* Corrigido de container-div-main para container-main */}
+                <div className="container-main"> 
                     <h1>Seja bem vindo ao controle de ABS <span>!</span></h1>
 
                     <p>

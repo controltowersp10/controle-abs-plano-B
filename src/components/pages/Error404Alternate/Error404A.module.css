@@ -1,0 +1,36 @@
+:root {
+    --background: #282c34;
+    --text-common: #D3D4D7;
+    --color-teme: #9901c3;
+    --color-teme-hover:#740685;
+    --section-color: #16181D;
+    --text-grey:#bebebe25;
+  }
+.information_404 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; 
+    background-color: var(--background);
+    margin-top: 2.5rem;
+}
+
+.information_container_404 {
+    padding: 2rem;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    text-align: center; 
+    overflow: hidden;
+}
+ .imagem{
+    width: 39%;
+    height: 100%;
+ }
+ @media (max-width: 800px) {
+
+ .imagem{
+    width: 90%;
+    height: 100%;
+ }
+ }

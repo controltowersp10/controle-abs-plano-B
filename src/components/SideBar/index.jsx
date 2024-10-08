@@ -8,10 +8,8 @@ const SideBar = () => {
                 <div className="container-side">
                     <ul>
                         <li><Link to="/">Home</Link></li>
-                        <li><Link to="/relatorio">Relatório</Link></li>
-                        <li><Link to="/Write">Write page</Link></li>
-                        <li><Link to="/Read">Read page</Link></li>
-                        <li><Link to="/UpdateRead">Update page</Link></li>
+                        <li><Link to="/relatorio">Controle ABS</Link></li>
+                        <li><Link to="/DashABS">Dashboard ABS</Link></li>
                     </ul>
                 </div>
             </div>
