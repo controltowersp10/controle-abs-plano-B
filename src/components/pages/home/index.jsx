@@ -1,9 +1,13 @@
-import '../../../estilo.css'; // Corrigido para garantir que o CSS seja importado corretamente
-import Navbar from '../../Navbar';
+import Navbar from "../../Navbar"
+import SideBar from "../../SideBar"
+import Main from "../../Main"
+
 const Home = () => {
     return (
         <>
-            <Navbar/>
+            <Navbar />
+            <SideBar />
+            <Main />
         </>
     );
 };

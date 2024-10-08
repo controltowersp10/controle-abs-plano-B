@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import app from "../../firebaseConfig.jsx"
+import app from "../../../firebaseConfig.jsx"
 import { getDatabase, ref, get} from "firebase/database"
 import { Link } from "react-router-dom"
 

@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import app from "../../firebaseConfig.jsx"
+import app from "../../../firebaseConfig.jsx"
 import { getDatabase, ref, set, push } from "firebase/database"
 import { Link } from "react-router-dom"
 
@@ -10,7 +10,7 @@ const Write = () => {
 
     const savedata = async () => {
         const db = getDatabase(app) // Certifique-se de que app está inicializado corretamente com a URL raiz
-        const newDocRef = push(ref(db, "nature/fruits")) // "nature/fruits" está correto
+        const newDocRef = push(ref(db, "Chamada/Representante")) // "nature/fruits" está correto
         set(newDocRef, {
             FruitName: inputValue1,
             FruitDefinition: inputValue2

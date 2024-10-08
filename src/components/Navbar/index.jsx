@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom';
+import Logo from "../../assets/img/logoABS.png"
 import '../../estilo.css'; // Corrigido para garantir que o CSS seja importado corretamente
 
 const Navbar = () => {
@@ -6,15 +8,15 @@ const Navbar = () => {
             <header>
                 <div className="container-header">
                     <div className="img">
-                        <a href="home.html">
-                            <h1>ID/EA</h1> {/* O título deve estar dentro do link */}
-                        </a>
+                        <Link to="/home">
+                            <img src={Logo} alt="ID/EA"/>
+                        </Link>
                     </div>
                     <div className="menu">
-                        <link to="" className="button">Dashboard ABS</link>
-                        <link to="" className="button">Dashboard Feedback</link>
-                        <link to="" className="button">Site ID/EA</link>
-                        <link to="" className="button">Sobre</link>
+                        <button onClick={() => alert("Navegar para Dashboard ABS")}>Dashboard ABS</button>
+                        <button onClick={() => alert("Navegar para Dashboard Feedback")}>Dashboard Feedback</button>
+                        <button onClick={() => window.location.href = "https://sites.google.com/mercadolivre.com/idea-sp10?usp=sharing"}>Site ID/EA-SP10</button>
+                        <button onClick={() => alert("Ler Relatório")}>Sobre</button>
                     </div>
                 </div>
             </header>

@@ -16,6 +16,7 @@ const Mainpage = () => {
                     </p>
                 </div>
             </div>
+            
         </>
     )
 }

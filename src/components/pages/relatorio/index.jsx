@@ -1,9 +1,8 @@
-
-
 import '../../../estilo.css'; // Corrigido para garantir que o CSS seja importado corretamente
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
-import Logo from "../../../assets/img/logoABS.png"
+import Navbar from '../../Navbar';
+import SideBar from '../../SideBar';
 
 
 
@@ -40,32 +39,8 @@ const Relatorio = () => {
 
     return (
         <>
-            <header>
-                <div className="container-header">
-                    <div className="img">
-                        <Link to="/home">
-                            <img src={Logo} alt="ID/EA"/>
-                        </Link>
-                    </div>
-                    <div className="menu">
-                        <button onClick={() => alert("Navegar para Dashboard ABS")}>Dashboard ABS</button>
-                        <button onClick={() => alert("Navegar para Dashboard Feedback")}>Dashboard Feedback</button>
-                        <button onClick={() => window.location.href = "https://sites.google.com/mercadolivre.com/idea-sp10?usp=sharing"}>Site ID/EA-SP10</button>
-                        <button onClick={() => alert("Ler Relatório")}>Sobre</button>
-                    </div>
-                </div>
-            </header>
-
-            <div className="side-bar">
-                <div className="container-side">
-                    <ul>
-                        <li><Link to="/home">Home</Link></li>
-                        <li><Link to="/">Relatório</Link></li>
-                        <li><Link to="/Write">Write page</Link></li>
-                        <li><Link to="/Read">Read page</Link></li>
-                    </ul>
-                </div>
-            </div>
+           <Navbar />
+           <SideBar/>
 
             <main>
                 <div className="container-main">
