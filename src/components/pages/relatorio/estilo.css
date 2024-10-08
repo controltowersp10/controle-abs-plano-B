@@ -64,7 +64,7 @@ main {
     color: var(--color3);
     overflow-y: auto; /* Rolagem vertical */
  }
- 
+
  table, th, td {
     border: 1px solid var(--color4);
  }
@@ -99,4 +99,6 @@ main {
     color: #888;
     font-style: italic;
  }
+
+ 
  

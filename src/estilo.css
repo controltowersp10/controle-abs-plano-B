@@ -3,7 +3,7 @@
    --color2: #242424; /* Side & Header */
    --color3: #dddbd8; /* Texto */
    --color4: #ffa500; /* Texto 2 */
-   --color5: #de9000; /* Hover */
+   --color5: #de900059; /* Hover */
 }
 
 * {
@@ -57,7 +57,7 @@ header {
 }
 
 .menu button {
-   background-color: var(--color5);
+   background-color: var(--color4);
    border-style: none;
    padding: 10px;
    height: 40px;
@@ -172,7 +172,7 @@ main {
 }
 
 .campo-de-pesquisa button {
-   background-color: var(--color5);
+   background-color: var(--color4);
    border-style: none;
    width: 150px;
    height: 40px;
@@ -184,29 +184,63 @@ main {
 
 /* Estilo para a tabela */
 .container-main .container-tabela {
-   width: 100%;
-   max-height: 550px; /* Altura máxima para 30 linhas */
-   overflow-y: auto; /* Rolagem vertical */
-   overflow-x: auto; /* Rolagem horizontal */
+   width: 100%;  
+   max-height: 550px; /* Altura máxima */
+   overflow: hidden; /* Remover rolagem do container */
 }
 
 table {
-   width: 100%; /* Certifica-se que a tabela ocupa todo o espaço */
+   display: block; /* Permitir rolagem dentro da tabela */
+   width: 100%; 
+   max-height: 450px; /* Definir altura máxima para a tabela */
+   overflow-x: auto; /* Rolagem horizontal na tabela */
    border-collapse: collapse;
-   margin-top: 20px;
+   margin-top: 30px;
    font-weight: 600;
    color: var(--color3);
-   overflow-y: auto; /* Rolagem vertical */
+}
+
+table select{
+   background-color: var(--color4);
+   border-style: none;
+   padding: 5px;
+   width: 100%;
+   border-radius: 4px;
+   font-weight: bold;
+   color: var(--color3);
+}
+
+table select:hover {
+   background-color: var(--color2);
+   color: var(--color3);
+}
+select option{
+   background-color: var(--color2);
 }
 
 table, th, td {
    border: 1px solid var(--color4);
 }
-
-th, td {
+th{
+   padding: 8px; /* Mais espaço nas células */
+   text-align: center;
+   font-size: 14px;
+   white-space: nowrap; /* Impedir quebra de linha nas células */
+}
+td{
    padding: 8px; /* Mais espaço nas células */
    text-align: left;
    font-size: 14px;
+   white-space: nowrap; /* Impedir quebra de linha nas células */
+}
+td button{
+   background-color: var(--color4);
+   border-style: none;
+   padding: 5px;
+   width: 100%;
+   border-radius: 4px;
+   font-weight: bold;
+   color: var(--color3);
 }
 
 /* Estilo para o cabeçalho da tabela */
@@ -215,11 +249,14 @@ th {
    font-weight: bold;
    color: #000000;
    padding: 4px;
+   position: sticky; /* Fixa o cabeçalho ao topo */
+   top: 0; /* Fixa na parte superior da tabela */
+   z-index: 1; /* Garante que o cabeçalho fique acima das células */
 }
 
 /* Estilo para as linhas alternadas */
 tbody tr:nth-child(even) {
-   background-color: #f9f9f95e;
+   background-color: #0e0e0f54;
 }
 
 /* Estilo para as linhas ao passar o mouse */
