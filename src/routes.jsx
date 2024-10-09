@@ -15,7 +15,8 @@ const RoutesApp = () => {
 
     return(
         <BrowserRouter>
-            <Routes>
+            <Routes> 
+                <Route path="*" element={random404}/>
                 <Route path="/" element={<Home/>}/>
                 <Route path="/relatorio" element={<Relatorio/>}/>
                 <Route path="/sobre" element={<Sobre/>}/>
@@ -24,7 +25,7 @@ const RoutesApp = () => {
                 <Route path="/updatewrite/:firebaseid" element={<UpdateWrite/>}/>
                 <Route path="/updateread" element={<UpdateRead/>}/>
                 <Route path="/dashABS" element={<DashABS/>}/>
-                <Route path="*" element={random404}/>
+               
             </Routes>
         </BrowserRouter>
     )

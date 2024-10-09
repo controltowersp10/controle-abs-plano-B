@@ -192,10 +192,24 @@ main {
    margin-left: 1rem;
    margin-right: 1rem;
    padding: 0.2rem;
-   background-color: var(--color1);
-   color: var(--color3);
-   outline-color: var(--color4);
+   background-color: var(--color1); /* Mantém o fundo na cor definida */
+   color: var(--color3); /* Cor da fonte */
+   outline-color: var(--color4); /* Cor ao redor do campo no foco */
 }
+
+/* Quando o campo está em foco (quando o usuário clica ou digita) */
+.campo-de-pesquisa input:focus {
+   background-color: var(--color1); /* Garante que o fundo permaneça var(--color1) durante o foco */
+   color: var(--color3); /* Garante que o texto permaneça var(--color3) durante o foco */
+   outline-color: var(--color4); /* Borda externa durante o foco */
+}
+
+/* Quando o campo tem texto preenchido */
+.campo-de-pesquisa input:not(:placeholder-shown) {
+   background-color: var(--color1); /* Mantém o fundo var(--color1) depois de preenchido */
+   color: var(--color3); /* Mantém o texto var(--color3) depois de preenchido */
+}
+
 
 .campo-de-pesquisa button {
    background-color: var(--color4);
@@ -282,6 +296,8 @@ th{
    text-align: center;
    font-size: 14px;
    white-space: nowrap; /* Impedir quebra de linha nas células */
+   position: sticky;
+   z-index: 5;
 }
 td{
    padding: 8px; /* Mais espaço nas células */
