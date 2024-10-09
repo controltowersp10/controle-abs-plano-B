@@ -5,6 +5,7 @@ import Styles from "./Page404.module.css"
 import logo from "../../../assets/img/logoABS.png"
 
 const Error404 = () => {
+    alert("Esta página não existe!\nVolte a pagina inicial e tente novamente !");
     return(
         <>
             <Helmet>

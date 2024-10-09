@@ -6,7 +6,7 @@
   }
 
 .header{
-    background-color: var();
+    background-color: var(--background);
     height: 60px;
     overflow: hidden;
 }

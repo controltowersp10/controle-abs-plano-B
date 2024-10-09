@@ -1,6 +1,6 @@
 :root {
    --color1: #2e2e30; /* Fundo */
-   --color2: #242424; /* Side & Header */
+   --color2: #242424;  /* Side & Header */
    --color3: #dddbd8; /* Texto */
    --color4: #ffa500; /* Texto 2 */
    --color5: #de900059; /* Hover */
@@ -17,7 +17,22 @@
 body {
    background-color: var(--color1);
 }
+body::-webkit-scrollbar {
+   padding: 0;
+   height: 9px;
+}
 
+body::-webkit-scrollbar-track {
+   background: var(--color2);
+}
+
+body::-webkit-scrollbar-thumb {
+   background: var(--color5);
+}
+
+body::-webkit-scrollbar-thumb:hover {
+   background: var(--color4);
+}
 /* Cabeçalho do site */
 header {
    position: fixed;
@@ -41,7 +56,7 @@ header {
 }
 
 .img img {
-   width: 100%;
+   width: 70%;
 }
 
 .img h1 {
@@ -70,29 +85,33 @@ header {
 }
 
 .menu button:hover {
-   background-color: var(--color4);
+   background-color: var(--color2);
    color: var(--color3);
+   border-style: solid;
+   border-width: 1px;
+   border-color: var(--color4);
+   transition: background-color 0.2s ease, transform 0.1s ease; /* Suavizar a transição */
 }
 .menu button:active {
-   background-color: var(--color5); /* Cor do botão ao ser clicado */
-   transform: scale(0.95); /* Leve efeito de redução ao clicar */}
+   background-color: var(--color2); /* Cor do botão ao ser clicado */
+   transform: scale(0.95); /* Leve efeito de redução ao clicar */
+}
 
-/* Barra lateral */
 .side-bar {
    width: 180px;
-   height: 100vh;
    background-color: var(--color2);
    padding: 10px;
    float: left;
    box-sizing: border-box;
    margin-top: 5rem;
    position: fixed;
+   height: calc(100vh - 60px); /* Ajuste a altura conforme necessário */
+   bottom: 0; /* Garante que ela vá até o final da tela */
 }
-
 .container-side {
    width: 100%;
    height: auto;
-   margin-top: 1rem;
+   margin-top: 2rem;
 }
 
 .container-side li {
@@ -119,6 +138,7 @@ main {
    margin-top: 2rem;
    margin-left: 190px;
    width: calc(100% - 210px);
+   min-height: calc(100vh - 60px); /* Deixa espaço para o footer */
    box-sizing: border-box;
 }
 
@@ -184,12 +204,18 @@ main {
    height: 40px;
    border-radius: 4px;
    font-weight: bold;
-   color: var(--color3);
+   color: var(--color2);
    margin-left: 3rem;
 }
+.campo-de-pesquisa button:hover{
+   background-color: var(--color2); /* Cor do botão ao ser clicado */
+   color: var(--color3);
+   transition: background-color 0.2s ease, transform 0.1s ease; /* Suavizar a transição */
+} 
 .campo-de-pesquisa button:active {
    background-color: var(--color2); /* Cor do botão ao ser clicado */
    transform: scale(0.95); /* Leve efeito de redução ao clicar */
+   color: var(--color3);
 }
 /* Estilo para a tabela */
 .container-main .container-tabela {

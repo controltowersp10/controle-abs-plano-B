@@ -5,6 +5,7 @@ import { getDatabase, ref, get, set } from "firebase/database";
 import '../../../estilo.css';
 import Navbar from '../../Navbar';
 import SideBar from '../../SideBar';
+import Footer from '../../Footer';
 
 const RelatorioEUpdate = () => {
     const [representanteArray, setRepresentanteArray] = useState([]);
@@ -114,7 +115,8 @@ const RelatorioEUpdate = () => {
                         <label htmlFor="data">Data do relatório:</label>
                         <input type="date" id="data" name="data"  value={searchData} onChange={(e) => setSearchData(e.target.value)}/>
 
-                        <button onClick={handleGenerateReport}>Gerar Relatório</button>
+                        <button onClick={handleGenerateReport}>GERAR RELATORIO</button>
+                        <button onClick="">SALVAR</button>
                     </div>
 
                     {reportGenerated && (
@@ -183,12 +185,7 @@ const RelatorioEUpdate = () => {
                     </div>
                 </div>
             </main>
-
-            <footer>
-                <div className="foto">
-                    <img src="" alt="" />
-                </div>
-            </footer>
+            <Footer />
         </>
     );
 };

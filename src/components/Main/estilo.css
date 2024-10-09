@@ -4,6 +4,7 @@ main {
     margin-left: 190px;
     width: calc(100% - 210px);
     box-sizing: border-box;
+    min-height: 100vh;
  }
  
  /* Container principal */
@@ -11,6 +12,7 @@ main {
     width: 90%; /* Define a largura do container para centralizar */
     margin: auto; /* Centraliza o container */
     text-align: justify; /* Texto justificado */
+    min-height: 100vh;
  }
  
  .container-main h1 {

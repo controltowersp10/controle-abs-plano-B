@@ -5,6 +5,7 @@ import img from "../../../assets/img/error1.svg"
 import logo from "../../../assets/img/logoABS.png"
 
 const Error404Alternate = () => {
+    alert("Esta página não existe!\n Volte a pagina inicial e tente novamente !");
     return(
         <>
             <Helmet>
