@@ -14,6 +14,7 @@ const RelatorioEUpdate = () => {
     const [searchRE, setSearchRE] = useState("");
     const [searchData, setSearchData] = useState("");
     const [reportGenerated, setReportGenerated] = useState(false);
+    const [pendingChanges, setPendingChanges] = useState({}); // Armazenar alterações locais
 
     const fetchData = async () => {
         const db = getDatabase(app);
@@ -24,7 +25,7 @@ const RelatorioEUpdate = () => {
             const temporaryArray = Object.keys(myData).map(myFireid => {
                 return {
                     ...myData[myFireid],
-                    RepresentanteId: myFireid 
+                    RepresentanteId: myFireid
                 };
             });
             setRepresentanteArray(temporaryArray);
@@ -39,67 +40,77 @@ const RelatorioEUpdate = () => {
             alert("Por favor, preencha o nome do Team Leader.");
             return;
         }
-    
+
         if (!searchData.trim()) {
             alert("Por favor, selecione uma data.");
             return;
         }
-    
+
         const filtered = data.filter(item => {
             const isNomeMatch = item.Team_Leader && item.Team_Leader.toLowerCase().includes(searchNome.toLowerCase());
             const isDataMatch = item.DATA === searchData;
             return isNomeMatch && isDataMatch;
         });
-    
+
         setFilteredData(filtered);
         setReportGenerated(true);
     };
-    
 
     const handleGenerateReport = () => {
         fetchData();
     };
 
-    const updateStatus = async (representanteId, newStatus) => {
-        const db = getDatabase(app);
-        const dbRef = ref(db, `Chamada/Representante/${representanteId}`);
-        const snapshot = await get(dbRef);
-        
-        if (snapshot.exists()) {
-            const updatedData = { ...snapshot.val(), Status: newStatus };
-            await set(dbRef, updatedData);
-            alert("Status atualizado com sucesso!");
-            fetchData();  // Atualiza os dados após salvar
-        } else {
-            alert("Erro ao atualizar status.");
-        }
+    const handleStatusChange = (representanteId, newStatus) => {
+        setPendingChanges(prev => ({
+            ...prev,
+            [representanteId]: {
+                ...prev[representanteId],
+                Status: newStatus
+            }
+        }));
     };
 
-    const addJustificativa = async (representanteId) => {
+    const addJustificativa = (representanteId) => {
         const justificativa = prompt("Por favor, insira a justificativa:");
         if (justificativa) {
-            const db = getDatabase(app);
-            const dbRef = ref(db, `Chamada/Representante/${representanteId}`);
-            const snapshot = await get(dbRef);
-            
-            if (snapshot.exists()) {
-                const updatedData = { ...snapshot.val(), Justificativa: justificativa };
-                await set(dbRef, updatedData);
-                alert("Justificativa salva com sucesso!");
-                fetchData();  // Atualiza os dados após salvar
-            } else {
-                alert("Erro ao salvar justificativa.");
-            }
+            setPendingChanges(prev => ({
+                ...prev,
+                [representanteId]: {
+                    ...prev[representanteId],
+                    Justificativa: justificativa
+                }
+            }));
         } else {
             alert("Nenhuma justificativa inserida.");
         }
     };
 
+    const handleSave = async () => {
+        const db = getDatabase(app);
+
+        for (const representanteId in pendingChanges) {
+            const dbRef = ref(db, `Chamada/Representante/${representanteId}`);
+            const snapshot = await get(dbRef);
+
+            if (snapshot.exists()) {
+                const updatedData = {
+                    ...snapshot.val(),
+                    ...pendingChanges[representanteId] // Aplica as alterações locais
+                };
+                await set(dbRef, updatedData);
+            }
+        }
+
+        alert("Alterações salvas com sucesso!");
+        setPendingChanges({}); // Limpa as alterações pendentes após salvar
+        fetchData(); // Atualiza os dados
+    };
+
     return (
         <>
-        <Helmet>
-            <title>Controle ABS</title>
-        </Helmet>
+            <Helmet>
+                <title>Controle ABS</title>
+            </Helmet>
             <Navbar />
             <SideBar />
             <main>
@@ -107,20 +118,48 @@ const RelatorioEUpdate = () => {
                     <div className="campo-de-pesquisa">
 
                         <label htmlFor="NomeTL">Nome:</label>
-                        <input type="text" id="NomeTL" name="NomeTL" value={searchNome} onChange={(e) => setSearchNome(e.target.value)} placeholder="Digite seu nome"/>
+                        <input
+                            type="text"
+                            id="NomeTL"
+                            name="NomeTL"
+                            value={searchNome}
+                            onChange={(e) => setSearchNome(e.target.value)}
+                            placeholder="Digite seu nome"
+                        />
 
                         <label htmlFor="RETL">RE:</label>
-                        <input type="text" id="RETL" name="RETL" value={searchRE} onChange={(e) => setSearchRE(e.target.value)} placeholder="Digite seu RE"/>
+                        <input
+                            type="text"
+                            id="RETL"
+                            name="RETL"
+                            value={searchRE}
+                            onChange={(e) => setSearchRE(e.target.value)}
+                            placeholder="Digite seu RE"
+                        />
 
                         <label htmlFor="data">Data do relatório:</label>
-                        <input type="date" id="data" name="data"  value={searchData} onChange={(e) => setSearchData(e.target.value)}/>
+                        <input
+                            type="date"
+                            id="data"
+                            name="data"
+                            value={searchData}
+                            onChange={(e) => setSearchData(e.target.value)}
+                        />
 
-                        <button onClick={handleGenerateReport}>GERAR RELATORIO</button>
-                        <button onClick="">SALVAR</button>
+                        <button onClick={handleGenerateReport}>GERAR RELATÓRIO</button>
+
+                        {/* Exibe o botão de salvar apenas quando o relatório for gerado */}
+                        {reportGenerated && (
+                            <button onClick={handleSave}>SALVAR</button>
+                        )}
                     </div>
 
                     {reportGenerated && (
-                        <h2>Olá {searchNome},&nbsp; Aqui está o relatório <span>ABS</span> da sua equipe <span>!</span></h2>
+                        <>
+                            <h2>
+                                Olá {searchNome},&nbsp; Aqui está o relatório <span>ABS</span> da sua equipe!
+                            </h2>
+                        </>
                     )}
 
                     <div className="container-tabela">
@@ -153,7 +192,7 @@ const RelatorioEUpdate = () => {
                                             <td>{item.Turno}</td>
                                             <td>{item.Escala_Padrao}</td>
                                             <td>{item.Cargo_Padrao}</td>
-                                            <td>{item.Area_Padrao}</td> 
+                                            <td>{item.Area_Padrao}</td>
                                             <td>{item.Empresa}</td>
                                             <td>{item.Status}</td>
                                             <td>{item.Turma}</td>
@@ -162,7 +201,8 @@ const RelatorioEUpdate = () => {
                                             <td>
                                                 <select
                                                     defaultValue={item.presenca}
-                                                    onChange={(e) => updateStatus(item.RepresentanteId, e.target.value)} >
+                                                    onChange={(e) => handleStatusChange(item.RepresentanteId, e.target.value)}
+                                                >
                                                     <option>Selecione</option>
                                                     <option value="Presente">Presente</option>
                                                     <option value="Faltou">Faltou</option>
@@ -171,7 +211,9 @@ const RelatorioEUpdate = () => {
                                                 </select>
                                             </td>
                                             <td>
-                                                <button onClick={() => addJustificativa(item.RepresentanteId)}>Adicionar Justificativa</button>
+                                                <button onClick={() => addJustificativa(item.RepresentanteId)}>
+                                                    Adicionar Justificativa
+                                                </button>
                                             </td>
                                         </tr>
                                     ))
