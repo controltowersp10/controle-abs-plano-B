@@ -316,23 +316,23 @@ th:nth-child(1), td:nth-child(1) {
    position: sticky;
    left: 0;
    width: 100px; /* Definir largura apropriada para a coluna */
-   background-color: var(--color1); /* Cor de fundo para garantir que as células fixas sejam visíveis */
-   z-index: 3; /* Garantir que fique acima das outras colunas */
+   background-color: var(--color1); 
+   z-index: 3;
 }
 
 th:nth-child(2), td:nth-child(2) {
    position: sticky;
-   left: 71px; /* Ajuste com base na largura da primeira coluna */
-   width: 150px; /* Definir largura apropriada para a coluna "Nome" */
+   left: 0; /* Removido o valor fixo, que será calculado via JS */
+   width: 150px; 
    background-color: var(--color1);
    z-index: 3;
 }
 
 th:nth-child(3), td:nth-child(3) {
-   left: 380px; /* Ajuste com base na largura das colunas anteriores */
-   width: 100px; /* Definir largura apropriada para a coluna "RE" */
-   background-color: var(--color1);
    position: sticky;
+   left: 0; /* Removido o valor fixo, que será calculado via JS */
+   width: 100px; 
+   background-color: var(--color1);
    z-index: 3;
 }
 th:nth-child(1),

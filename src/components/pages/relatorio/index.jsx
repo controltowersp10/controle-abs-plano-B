@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Helmet } from "react-helmet";
 import app from "../../../firebaseConfig.jsx";
 import { getDatabase, ref, get, set } from "firebase/database";
@@ -7,7 +7,6 @@ import Navbar from '../../Navbar';
 import SideBar from '../../SideBar';
 import Footer from '../../Footer';
 
-
 const RelatorioEUpdate = () => {
     const [representanteArray, setRepresentanteArray] = useState([]);
     const [filteredData, setFilteredData] = useState([]);
@@ -15,10 +14,9 @@ const RelatorioEUpdate = () => {
     const [searchRE, setSearchRE] = useState("");
     const [searchData, setSearchData] = useState("");
     const [reportGenerated, setReportGenerated] = useState(false);
-    const [pendingChanges, setPendingChanges] = useState({}); // Armazenar alterações locais
+    const [pendingChanges, setPendingChanges] = useState({});
+    const [columnWidths, setColumnWidths] = useState({}); // Novo estado para armazenar as larguras das colunas
 
-
-    {/* Função para buscar os dados do Firebase */}
     const fetchData = async () => {
         const db = getDatabase(app);
         const dbRef = ref(db, "Chamada/Representante");
@@ -37,7 +35,7 @@ const RelatorioEUpdate = () => {
             alert("Nenhum dado disponível");
         }
     };
-    {/* Aplicar filtros ao carregar os dados */}
+
     const applyFilters = (data) => {
         if (!searchNome.trim()) {
             alert("Por favor, preencha o nome do Team Leader.");
@@ -48,7 +46,7 @@ const RelatorioEUpdate = () => {
             alert("Por favor, selecione uma data.");
             return;
         }
-        {/* Filtra os dados com base no nome do Team Leader e na data */}
+
         const filtered = data.filter(item => {
             const isNomeMatch = item.Team_Leader && item.Team_Leader.toLowerCase().includes(searchNome.toLowerCase());
             const isDataMatch = item.DATA === searchData;
@@ -58,11 +56,11 @@ const RelatorioEUpdate = () => {
         setFilteredData(filtered);
         setReportGenerated(true);
     };
-    {/* Função para gerar o relatório */}
+
     const handleGenerateReport = () => {
         fetchData();
     };
-    {/* Função para atualizar o status */}
+
     const handleStatusChange = (representanteId, newStatus) => {
         setPendingChanges(prev => ({
             ...prev,
@@ -72,7 +70,7 @@ const RelatorioEUpdate = () => {
             }
         }));
     };
-    {/* Função para adicionar justificativa */}
+
     const addJustificativa = (representanteId) => {
         const justificativa = prompt("Por favor, insira a justificativa:");
         if (justificativa) {
@@ -87,7 +85,7 @@ const RelatorioEUpdate = () => {
             alert("Nenhuma justificativa inserida.");
         }
     };
-    {/* Função para salvar as alterações locais */}
+
     const handleSave = async () => {
         const db = getDatabase(app);
 
@@ -98,30 +96,45 @@ const RelatorioEUpdate = () => {
             if (snapshot.exists()) {
                 const updatedData = {
                     ...snapshot.val(),
-                    ...pendingChanges[representanteId] // Aplica as alterações locais
+                    ...pendingChanges[representanteId]
                 };
                 await set(dbRef, updatedData);
             }
         }
 
         alert("Alterações salvas com sucesso!");
-        setPendingChanges({}); // Limpa as alterações pendentes após salvar
-        fetchData(); // Atualiza os dados
+        setPendingChanges({});
+        fetchData();
     };
 
-        {/* Função para capitalizar o nome */}
     const capitalizeName = (name) => {
         return name
-            .toLowerCase() // Converte a string inteira para minúsculas
-            .split(' ') // Divide a string em palavras
-            .map(word => word.charAt(0).toUpperCase() + word.slice(1)) // Capitaliza a primeira letra de cada palavra
-            .join(' '); // Junta as palavras de volta em uma string
-    }
-        {/* Função para formatar a data */}
-    const formatDate = (dateString) => {
-        const [year, month, day] = dateString.split('-'); // Divide a string de data no formato 'ano-mês-dia'
-        return `${day}/${month}/${year}`; // Retorna no formato 'dia/mês/ano'
+            .toLowerCase()
+            .split(' ')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' ');
     };
+
+    const formatDate = (dateString) => {
+        const [year, month, day] = dateString.split('-');
+        return `${day}/${month}/${year}`;
+    };
+
+    const calculateColumnWidths = () => {
+        // Função para calcular automaticamente as larguras das colunas
+        const widths = {
+            id: document.querySelector('th:nth-child(1)').offsetWidth || 100,
+            nome: document.querySelector('th:nth-child(2)').offsetWidth || 150,
+            re: document.querySelector('th:nth-child(3)').offsetWidth || 100
+        };
+        setColumnWidths(widths);
+    };
+
+    useEffect(() => {
+        if (reportGenerated) {
+            calculateColumnWidths(); // Recalcula as larguras após gerar o relatório
+        }
+    }, [reportGenerated]);
 
     return (
         <>
@@ -133,7 +146,6 @@ const RelatorioEUpdate = () => {
             <main>
                 <div className="container-main">
                     <div className="campo-de-pesquisa">
-
                         <label htmlFor="NomeTL">Nome:</label>
                         <input type="text" id="NomeTL" name="NomeTL" value={searchNome} onChange={(e) => setSearchNome(e.target.value)} placeholder="Digite seu nome" />
 
@@ -145,7 +157,6 @@ const RelatorioEUpdate = () => {
 
                         <button onClick={handleGenerateReport}>GERAR RELATÓRIO</button>
 
-                        {/* Exibe o botão de salvar apenas quando o relatório for gerado */}
                         {reportGenerated && (
                             <button onClick={handleSave}>SALVAR</button>
                         )}
@@ -154,47 +165,45 @@ const RelatorioEUpdate = () => {
                     {reportGenerated && (
                         <>
                             <h2>Olá {capitalizeName(searchNome)},&nbsp; Aqui está o relatório <span>ABS</span> da sua equipe!</h2>
-                        </>
-                    )}
 
-                    <div className="container-tabela">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>IDGroot</th>
-                                    <th>Nome</th>
-                                    <th>RE</th>
-                                    <th>Turno</th>
-                                    <th>Escala</th>
-                                    <th>Cargo</th>
-                                    <th>Área</th>
-                                    <th>Empresa</th>
-                                    <th>Status</th>
-                                    <th>Turma</th>
-                                    <th>Data</th>
-                                    <th>Presença</th>
-                                    <th>Validação</th>
-                                    <th>Justificativa</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {filteredData.length > 0 ? (
-                                    filteredData.map((item, index) => (
-                                        <tr key={index}>
-                                            <td>{item.ID_Groot}</td>
-                                            <td>{capitalizeName(item.Nome)}</td>
-                                            <td>{item.Matricula}</td>
-                                            <td>{item.Turno}</td>
-                                            <td>{item.Escala_Padrao}</td>
-                                            <td>{item.Cargo_Padrao}</td>
-                                            <td>{item.Area_Padrao}</td>
-                                            <td>{item.Empresa}</td>
-                                            <td>{item.Status}</td>
-                                            <td>{item.Turma}</td>
-                                            <td>{formatDate(item.DATA)}</td>
-                                            <td>{item.presenca}</td>
-                                            <td>
-                                                <select defaultValue={item.presenca} onChange={(e) => handleStatusChange(item.RepresentanteId, e.target.value)}>
+                            <div className="container-tabela">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>IDGroot</th>
+                                            <th>Nome</th>
+                                            <th>RE</th>
+                                            <th>Turno</th>
+                                            <th>Escala</th>
+                                            <th>Cargo</th>
+                                            <th>Área</th>
+                                            <th>Empresa</th>
+                                            <th>Status</th>
+                                            <th>Turma</th>
+                                            <th>Data</th>
+                                            <th>Presença</th>
+                                            <th>Validação</th>
+                                            <th>Justificativa</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {filteredData.length > 0 ? (
+                                            filteredData.map((item, index) => (
+                                                <tr key={index}>
+                                                    <td>{item.ID_Groot}</td>
+                                                    <td>{capitalizeName(item.Nome)}</td>
+                                                    <td>{item.Matricula}</td>
+                                                    <td>{item.Turno}</td>
+                                                    <td>{item.Escala_Padrao}</td>
+                                                    <td>{item.Cargo_Padrao}</td>
+                                                    <td>{item.Area_Padrao}</td>
+                                                    <td>{item.Empresa}</td>
+                                                    <td>{item.Status}</td>
+                                                    <td>{item.Turma}</td>
+                                                    <td>{formatDate(item.DATA)}</td>
+                                                    <td>{item.presenca}</td>
+                                                    <td>
+                                                    <select defaultValue={item.presenca} onChange={(e) => handleStatusChange(item.RepresentanteId, e.target.value)}>
                                                     <option value="">Selecione</option>
                                                     <option value="Presente">Presente</option>
                                                     <option value="Afastamento">Afastamento</option>
@@ -235,22 +244,24 @@ const RelatorioEUpdate = () => {
                                                     <option value="Treinamento-REP-III">Treinamento REP III</option>
                                                     <option value="Sinergia-Insumo">Sinergia Insumo</option>
                                                 </select>
-                                            </td>
-                                            <td>
-                                                <button onClick={() => addJustificativa(item.RepresentanteId)}>
-                                                    Adicionar Justificativa
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    ))
-                                ) : (
-                                    <tr>
-                                        <td colSpan="17">Nenhum dado disponível</td>
-                                    </tr>
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
+                                                    </td>
+                                                    <td>
+                                                        <button onClick={() => addJustificativa(item.RepresentanteId)}>
+                                                            Adicionar Justificativa
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            ))
+                                        ) : (
+                                            <tr>
+                                                <td colSpan="17">Nenhum dado disponível</td>
+                                            </tr>
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </>
+                    )}
                 </div>
             </main>
             <Footer />
