@@ -229,15 +229,16 @@ table select{
    background-color: var(--color4);
    border-style: none;
    padding: 5px;
-   width: 100%;
+   width: auto;
    border-radius: 4px;
    font-weight: bold;
-   color: var(--color3);
+   color: var(--color2);
 }
 
 table select:hover {
    background-color: var(--color2);
    color: var(--color3);
+   transition: background-color 0.2s ease, transform 0.1s ease; /* Suavizar a transição */
 }
 select option{
    background-color: var(--color2);
@@ -265,7 +266,7 @@ td button {
    width: 100%;
    border-radius: 4px;
    font-weight: bold;
-   color: var(--color3);
+   color: var(--color2);
    transition: background-color 0.2s ease, transform 0.1s ease; /* Suavizar a transição */
 }
 

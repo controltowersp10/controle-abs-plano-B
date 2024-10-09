@@ -1,11 +1,21 @@
 :root {
-    --background: #282c34;
+    --background: #242424;
     --text-common: #D3D4D7;
-    --color-teme: #9901c3;
-    --color-teme-hover:#740685;
+    --color-teme: #ffa500; 
+    --color-teme-hover:#de900059; /* Hover */
     --section-color: #16181D;
     --text-grey:#bebebe25;
   }
+  .header{
+    background-color: var();
+    height: 60px;
+    overflow: hidden;
+}
+.header .imagemLogo{
+    margin-left:20px;
+    width: 10%;
+    height: 100%;
+}
 .information_404 {
     display: flex;
     justify-content: center;

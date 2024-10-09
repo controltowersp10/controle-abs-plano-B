@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Helmet } from "react-helmet";
 import app from "../../../firebaseConfig.jsx";
 import { getDatabase, ref, get, set } from "firebase/database";
 import '../../../estilo.css';
@@ -95,6 +96,9 @@ const RelatorioEUpdate = () => {
 
     return (
         <>
+        <Helmet>
+            <title>Controle ABS</title>
+        </Helmet>
             <Navbar />
             <SideBar />
             <main>
@@ -123,13 +127,12 @@ const RelatorioEUpdate = () => {
                                 <tr>
                                     <th>IDGroot</th>
                                     <th>Nome</th>
-                                    <th>Team Leader</th>
                                     <th>RE</th>
                                     <th>Turno</th>
-                                    <th>Empresa</th>
                                     <th>Escala</th>
                                     <th>Cargo</th>
                                     <th>Área</th>
+                                    <th>Empresa</th>
                                     <th>Status</th>
                                     <th>Turma</th>
                                     <th>Data</th>
@@ -144,13 +147,12 @@ const RelatorioEUpdate = () => {
                                         <tr key={index}>
                                             <td>{item.ID_Groot}</td>
                                             <td>{item.Nome}</td>
-                                            <td>{item.Team_Leader}</td>
                                             <td>{item.Matricula}</td>
                                             <td>{item.Turno}</td>
-                                            <td>{item.Empresa}</td>
                                             <td>{item.Escala_Padrao}</td>
                                             <td>{item.Cargo_Padrao}</td>
-                                            <td>{item.Area_Padrao}</td>
+                                            <td>{item.Area_Padrao}</td> 
+                                            <td>{item.Empresa}</td>
                                             <td>{item.Status}</td>
                                             <td>{item.Turma}</td>
                                             <td>{item.DATA}</td>
