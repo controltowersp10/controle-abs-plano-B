@@ -2,7 +2,7 @@
    --color1: #2e2e30; /* Fundo */
    --color2: #242424;  /* Side & Header */
    --color3: #dddbd8; /* Texto */
-   --color4: #ffa500; /* Texto 2 */
+   --color4: #ea9029; /* Texto 2 */
    --color5: #de900059; /* Hover */
 }
 
@@ -172,7 +172,7 @@ main {
    text-align: justify; /* Alinha o texto de forma justificada */
    margin-bottom: 1.5rem; /* Espaço inferior para separar seções */
 }
-
+/*campo-de-pesquisa*/
 .container-main .campo-de-pesquisa {
    width: auto;
    height: 150px;
@@ -217,6 +217,9 @@ main {
    transform: scale(0.95); /* Leve efeito de redução ao clicar */
    color: var(--color3);
 }
+/*Fim campo-de-pesquisa*/
+
+
 /* Estilo para a tabela */
 .container-main .container-tabela {
    width: 100%;  
@@ -233,6 +236,7 @@ table {
    margin-top: 30px;
    font-weight: 600;
    color: var(--color3);
+   margin-bottom: 3rem;
 }
 
 table::-webkit-scrollbar {
@@ -307,6 +311,40 @@ td button:active {
 }
 
 
+/* Estilo para as colunas fixas */
+th:nth-child(1), td:nth-child(1) {
+   position: sticky;
+   left: 0;
+   width: 100px; /* Definir largura apropriada para a coluna */
+   background-color: var(--color1); /* Cor de fundo para garantir que as células fixas sejam visíveis */
+   z-index: 3; /* Garantir que fique acima das outras colunas */
+}
+
+th:nth-child(2), td:nth-child(2) {
+   position: sticky;
+   left: 71px; /* Ajuste com base na largura da primeira coluna */
+   width: 150px; /* Definir largura apropriada para a coluna "Nome" */
+   background-color: var(--color1);
+   z-index: 3;
+}
+
+th:nth-child(3), td:nth-child(3) {
+   left: 380px; /* Ajuste com base na largura das colunas anteriores */
+   width: 100px; /* Definir largura apropriada para a coluna "RE" */
+   background-color: var(--color1);
+   position: sticky;
+   z-index: 3;
+}
+th:nth-child(1),
+th:nth-child(2),
+th:nth-child(3){
+   background-color: var(--color4);
+   position: sticky;
+   z-index: 5;
+}
+
+
+
 /* Estilo para o cabeçalho da tabela */
 th {
    background-color: var(--color4);
@@ -315,8 +353,9 @@ th {
    padding: 4px;
    position: sticky; /* Fixa o cabeçalho ao topo */
    top: 0; /* Fixa na parte superior da tabela */
-   z-index: 1; /* Garante que o cabeçalho fique acima das células */
+   z-index: 2; /* Garante que o cabeçalho fique acima das células */
 }
+
 
 /* Estilo para as linhas alternadas */
 tbody tr:nth-child(even) {

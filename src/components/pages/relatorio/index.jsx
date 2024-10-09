@@ -7,6 +7,7 @@ import Navbar from '../../Navbar';
 import SideBar from '../../SideBar';
 import Footer from '../../Footer';
 
+
 const RelatorioEUpdate = () => {
     const [representanteArray, setRepresentanteArray] = useState([]);
     const [filteredData, setFilteredData] = useState([]);
@@ -16,6 +17,8 @@ const RelatorioEUpdate = () => {
     const [reportGenerated, setReportGenerated] = useState(false);
     const [pendingChanges, setPendingChanges] = useState({}); // Armazenar alterações locais
 
+
+    {/* Função para buscar os dados do Firebase */}
     const fetchData = async () => {
         const db = getDatabase(app);
         const dbRef = ref(db, "Chamada/Representante");
@@ -34,7 +37,7 @@ const RelatorioEUpdate = () => {
             alert("Nenhum dado disponível");
         }
     };
-
+    {/* Aplicar filtros ao carregar os dados */}
     const applyFilters = (data) => {
         if (!searchNome.trim()) {
             alert("Por favor, preencha o nome do Team Leader.");
@@ -45,7 +48,7 @@ const RelatorioEUpdate = () => {
             alert("Por favor, selecione uma data.");
             return;
         }
-
+        {/* Filtra os dados com base no nome do Team Leader e na data */}
         const filtered = data.filter(item => {
             const isNomeMatch = item.Team_Leader && item.Team_Leader.toLowerCase().includes(searchNome.toLowerCase());
             const isDataMatch = item.DATA === searchData;
@@ -55,11 +58,11 @@ const RelatorioEUpdate = () => {
         setFilteredData(filtered);
         setReportGenerated(true);
     };
-
+    {/* Função para gerar o relatório */}
     const handleGenerateReport = () => {
         fetchData();
     };
-
+    {/* Função para atualizar o status */}
     const handleStatusChange = (representanteId, newStatus) => {
         setPendingChanges(prev => ({
             ...prev,
@@ -69,7 +72,7 @@ const RelatorioEUpdate = () => {
             }
         }));
     };
-
+    {/* Função para adicionar justificativa */}
     const addJustificativa = (representanteId) => {
         const justificativa = prompt("Por favor, insira a justificativa:");
         if (justificativa) {
@@ -84,7 +87,7 @@ const RelatorioEUpdate = () => {
             alert("Nenhuma justificativa inserida.");
         }
     };
-
+    {/* Função para salvar as alterações locais */}
     const handleSave = async () => {
         const db = getDatabase(app);
 
@@ -106,6 +109,20 @@ const RelatorioEUpdate = () => {
         fetchData(); // Atualiza os dados
     };
 
+        {/* Função para capitalizar o nome */}
+    const capitalizeName = (name) => {
+        return name
+            .toLowerCase() // Converte a string inteira para minúsculas
+            .split(' ') // Divide a string em palavras
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1)) // Capitaliza a primeira letra de cada palavra
+            .join(' '); // Junta as palavras de volta em uma string
+    }
+        {/* Função para formatar a data */}
+    const formatDate = (dateString) => {
+        const [year, month, day] = dateString.split('-'); // Divide a string de data no formato 'ano-mês-dia'
+        return `${day}/${month}/${year}`; // Retorna no formato 'dia/mês/ano'
+    };
+
     return (
         <>
             <Helmet>
@@ -118,33 +135,13 @@ const RelatorioEUpdate = () => {
                     <div className="campo-de-pesquisa">
 
                         <label htmlFor="NomeTL">Nome:</label>
-                        <input
-                            type="text"
-                            id="NomeTL"
-                            name="NomeTL"
-                            value={searchNome}
-                            onChange={(e) => setSearchNome(e.target.value)}
-                            placeholder="Digite seu nome"
-                        />
+                        <input type="text" id="NomeTL" name="NomeTL" value={searchNome} onChange={(e) => setSearchNome(e.target.value)} placeholder="Digite seu nome" />
 
                         <label htmlFor="RETL">RE:</label>
-                        <input
-                            type="text"
-                            id="RETL"
-                            name="RETL"
-                            value={searchRE}
-                            onChange={(e) => setSearchRE(e.target.value)}
-                            placeholder="Digite seu RE"
-                        />
+                        <input type="text" id="RETL" name="RETL" value={searchRE} onChange={(e) => setSearchRE(e.target.value)} placeholder="Digite seu RE"/>
 
                         <label htmlFor="data">Data do relatório:</label>
-                        <input
-                            type="date"
-                            id="data"
-                            name="data"
-                            value={searchData}
-                            onChange={(e) => setSearchData(e.target.value)}
-                        />
+                        <input type="date" id="data" name="data" value={searchData} onChange={(e) => setSearchData(e.target.value)}/>
 
                         <button onClick={handleGenerateReport}>GERAR RELATÓRIO</button>
 
@@ -156,9 +153,7 @@ const RelatorioEUpdate = () => {
 
                     {reportGenerated && (
                         <>
-                            <h2>
-                                Olá {searchNome},&nbsp; Aqui está o relatório <span>ABS</span> da sua equipe!
-                            </h2>
+                            <h2>Olá {capitalizeName(searchNome)},&nbsp; Aqui está o relatório <span>ABS</span> da sua equipe!</h2>
                         </>
                     )}
 
@@ -187,7 +182,7 @@ const RelatorioEUpdate = () => {
                                     filteredData.map((item, index) => (
                                         <tr key={index}>
                                             <td>{item.ID_Groot}</td>
-                                            <td>{item.Nome}</td>
+                                            <td>{capitalizeName(item.Nome)}</td>
                                             <td>{item.Matricula}</td>
                                             <td>{item.Turno}</td>
                                             <td>{item.Escala_Padrao}</td>
@@ -196,18 +191,49 @@ const RelatorioEUpdate = () => {
                                             <td>{item.Empresa}</td>
                                             <td>{item.Status}</td>
                                             <td>{item.Turma}</td>
-                                            <td>{item.DATA}</td>
+                                            <td>{formatDate(item.DATA)}</td>
                                             <td>{item.presenca}</td>
                                             <td>
-                                                <select
-                                                    defaultValue={item.presenca}
-                                                    onChange={(e) => handleStatusChange(item.RepresentanteId, e.target.value)}
-                                                >
-                                                    <option>Selecione</option>
+                                                <select defaultValue={item.presenca} onChange={(e) => handleStatusChange(item.RepresentanteId, e.target.value)}>
+                                                    <option value="">Selecione</option>
                                                     <option value="Presente">Presente</option>
-                                                    <option value="Faltou">Faltou</option>
-                                                    <option value="Férias">Férias</option>
+                                                    <option value="Afastamento">Afastamento</option>
+                                                    <option value="Afastamento-Acd-Trab">Afastamento Acd Trabalho</option>
                                                     <option value="Atestado">Atestado</option>
+                                                    <option value="Atestado-Acd-Trab">Atestado Acd Trabalho</option>
+                                                    <option value="Atestado-Horas">Atestado Horas</option>
+                                                    <option value="Banco-de-Horas">Banco de Horas</option>
+                                                    <option value="Decl-Medica">Declaração Médica</option>
+                                                    <option value="Falta">Falta</option>
+                                                    <option value="Ferias">Férias</option>
+                                                    <option value="Folga-Escala">Folga Escala</option>
+                                                    <option value="Fretado">Fretado</option>
+                                                    <option value="Licenca">Licença</option>
+                                                    <option value="Presenca-HE">Presença (HE)</option>
+                                                    <option value="Sinergia-CX">Sinergia CX</option>
+                                                    <option value="Sinergia-IN">Sinergia IN</option>
+                                                    <option value="Sinergia-INV">Sinergia INV</option>
+                                                    <option value="Sinergia-Loss">Sinergia Loss</option>
+                                                    <option value="Sinergia-MWH">Sinergia MWH</option>
+                                                    <option value="Sinergia-OUT">Sinergia OUT</option>
+                                                    <option value="Sinergia-Qua">Sinergia Qua</option>
+                                                    <option value="Sinergia-RC01">Sinergia RC01</option>
+                                                    <option value="Sinergia-RC-SP10">Sinergia RC-SP10</option>
+                                                    <option value="Sinergia-RET">Sinergia RET</option>
+                                                    <option value="Sinergia-SP01">Sinergia SP01</option>
+                                                    <option value="Sinergia-SP02">Sinergia SP02</option>
+                                                    <option value="Sinergia-SP03">Sinergia SP03</option>
+                                                    <option value="Sinergia-SP04">Sinergia SP04</option>
+                                                    <option value="Sinergia-SP05">Sinergia SP05</option>
+                                                    <option value="Sinergia-SP06">Sinergia SP06</option>
+                                                    <option value="Sinergia-Sortation">Sinergia Sortation</option>
+                                                    <option value="Sinergia-Suspensao">Sinergia Suspensão</option>
+                                                    <option value="Sinergia-SVC">Sinergia SVC</option>
+                                                    <option value="Transferido">Transferido</option>
+                                                    <option value="Treinamento-Ext">Treinamento Ext</option>
+                                                    <option value="Treinamento-Int">Treinamento Int</option>
+                                                    <option value="Treinamento-REP-III">Treinamento REP III</option>
+                                                    <option value="Sinergia-Insumo">Sinergia Insumo</option>
                                                 </select>
                                             </td>
                                             <td>

@@ -2,7 +2,7 @@ import style from './Footer.module.css';
 import Logo from '../../assets/img/logofooter.png'
 
 const Footer = () => {
-    return (
+    return ( 
         <footer className={style.Footer}>
             <div className={style['footer-container']}>
                 <div className={style['logo-space']}>
@@ -51,7 +51,7 @@ const Footer = () => {
             <br/>
             <hr/>
             <br/>
-            <center><p>© Controle-ABS.</p></center>
+            <center><p>© <b>Control Tower SP10.</b></p></center>
         </footer>
     );
 };

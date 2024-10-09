@@ -4,14 +4,14 @@
     --color-teme:#ffa500;
     --color-teme-hover:#ffa500;;
     --color-segundary:#a7a7a7;
-    --section-color:#242424; 
+    --section-colori:#242424; 
 }
 a{
     text-decoration: none;
 }
 footer {
     width: 100vw;
-    background-color: var(--section-color);
+    background-color: var(--section-colori);
     padding: 10px;
     color: var(--text2);
     position: relative;
@@ -27,8 +27,8 @@ footer {
 }
 .logo-space{
     float: left;
-    width: 300px;
-    height: 300px;
+    width: 250px;
+    height: 250px;
     color: var(--text-comum);
     display: flex;
     flex-direction: column;

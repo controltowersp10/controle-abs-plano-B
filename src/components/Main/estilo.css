@@ -9,10 +9,11 @@ main {
  
  /* Container principal */
  .container-main {
-    width: 90%; /* Define a largura do container para centralizar */
-    margin: auto; /* Centraliza o container */
+    width: 100%; /* Define a largura do container para centralizar */
     text-align: justify; /* Texto justificado */
     min-height: 100vh;
+    margin-left: auto;
+    margin-right: auto;
  }
  
  .container-main h1 {
@@ -31,11 +32,11 @@ main {
  /* Estilo do parágrafo */
  .container-main p {
     width: 70%;
-    margin-left: auto;
-    margin-right: auto;
+    float: right;
+    margin-right: 8%;
     font-size: 18px; /* Ajuste do tamanho da fonte */
     line-height: 1.6; /* Espaçamento entre linhas para melhorar a legibilidade */
     text-align: justify; /* Alinha o texto de forma justificada */
-    margin-bottom: 1.5rem; /* Espaço inferior para separar seções */
+    margin-bottom: 3rem; /* Espaço inferior para separar seções */
  }
  
