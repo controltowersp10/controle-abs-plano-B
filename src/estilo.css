@@ -81,7 +81,7 @@ header {
    height: 40px;
    border-radius: 4px;
    font-weight: bold;
-   color: var(--color3);
+   color: var(--color2);
 }
 
 .menu button:hover {
