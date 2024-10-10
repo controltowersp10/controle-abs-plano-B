@@ -20,6 +20,7 @@ const RelatorioEUpdate = () => {
         const db = getDatabase(app);
         const dbRef = ref(db, "Chamada/Representante");
         const snapshot = await get(dbRef);
+        
         if (snapshot.exists()) {
             const myData = snapshot.val();
             const temporaryArray = Object.keys(myData).map(myFireid => {
@@ -28,12 +29,41 @@ const RelatorioEUpdate = () => {
                     RepresentanteId: myFireid
                 };
             });
-            setRepresentanteArray(temporaryArray);
-            applyFilters(temporaryArray);
+            // Obtenha todos os registros do histórico para a data selecionada
+            if (searchData) {
+                const historicoRef = ref(db, `Historico/Chamada/Representante/${searchData}`);
+                const historicoSnapshot = await get(historicoRef);
+                let historicoData = [];
+                
+                if (historicoSnapshot.exists()) {
+                    historicoData = historicoSnapshot.val();
+                    historicoData = Object.keys(historicoData).map(historicoId => ({
+                        ...historicoData[historicoId],
+                        RepresentanteId: historicoId,
+                        DATA: searchData // Adicionando a data ao histórico
+                    }));
+                }
+    
+                // Combina os dados mais recentes com o histórico
+                const combinedData = temporaryArray.map(item => {
+                    const historicoItem = historicoData.find(h => h.RepresentanteId === item.RepresentanteId) || {};
+                    return {
+                        ...item,
+                        ...historicoItem // Isso irá sobrepor dados do histórico se existirem
+                    };
+                });
+    
+                setRepresentanteArray(combinedData);
+                applyFilters(combinedData);
+            } else {
+                setRepresentanteArray(temporaryArray);
+                applyFilters(temporaryArray);
+            }
         } else {
             alert("Nenhum dado disponível");
         }
     };
+    
 
     const applyFilters = (data) => {
         if (!searchNome.trim()) {
@@ -87,38 +117,53 @@ const RelatorioEUpdate = () => {
 
     const handleSave = async () => {
         const db = getDatabase(app);
-
+    
+        // Para cada representante que teve suas informações alteradas
         for (const representanteId in pendingChanges) {
             const representanteData = pendingChanges[representanteId];
-            const { DATA } = representanteArray.find(item => item.RepresentanteId === representanteId); // Captura a data original do representante
-
+            const representanteOriginal = representanteArray.find(item => item.RepresentanteId === representanteId); // Captura os dados originais do representante
+            
+            // Combina os dados originais com os dados alterados (caso haja)
+            const fullRepresentanteData = {
+                ID_Groot: representanteOriginal.ID_Groot || "", 
+                Nome: representanteOriginal.Nome || "",
+                Matricula: representanteOriginal.Matricula || "",
+                Turno: representanteOriginal.Turno || "",
+                Escala_Padrao: representanteOriginal.Escala_Padrao || "",
+                Cargo_Padrao: representanteOriginal.Cargo_Padrao || "",
+                Area_Padrao: representanteOriginal.Area_Padrao || "",
+                Empresa: representanteOriginal.Empresa || "",
+                Status: representanteOriginal.Status || "",
+                Turma: representanteOriginal.Turma || "",
+                DATA: representanteOriginal.DATA || "",
+                Presenca: representanteData.presenca || representanteOriginal.presenca || "", // Pega o valor alterado ou o original
+                Justificativa: representanteData.Justificativa || representanteOriginal.Justificativa || "" // Pega o valor alterado ou o original
+            };
+    
             // Caminho para o histórico baseado na data e ID do representante
-            const dbRef = ref(db, `Historico/Chamada/Representante/${representanteId}/${DATA}`);
+            const dbRef = ref(db, `Historico/Chamada/${fullRepresentanteData.DATA}/${representanteId}`);
             const snapshot = await get(dbRef);
-
+    
+            // Verifica se já existe registro para a data do representante
             if (snapshot.exists()) {
-                // Se já existir, atualize apenas os campos modificados (presença e/ou justificativa)
+                // Se já existir, atualize todos os campos com os dados mais recentes
                 const existingData = snapshot.val();
                 const updatedData = {
                     ...existingData,
-                    ...(representanteData.presenca && { presenca: representanteData.presenca }), // Atualiza o campo de presença se modificado
-                    ...(representanteData.Justificativa && { Justificativa: representanteData.Justificativa }) // Atualiza o campo de justificativa se modificado
+                    ...fullRepresentanteData, // Sobrescreve com os dados mais recentes
                 };
                 await set(dbRef, updatedData);
             } else {
-                // Se não existir, crie um novo registro apenas com os campos modificados
-                const newData = {
-                    ...(representanteData.presenca && { presenca: representanteData.presenca }),
-                    ...(representanteData.Justificativa && { Justificativa: representanteData.Justificativa })
-                };
-                await set(dbRef, newData);
+                // Se não existir, crie um novo registro com todos os dados
+                await set(dbRef, fullRepresentanteData);
             }
         }
-
+    
         alert("Alterações salvas com sucesso!");
         setPendingChanges({});
         fetchData();
     };
+    
 
     const capitalizeName = (name) => {
         return name
@@ -134,18 +179,19 @@ const RelatorioEUpdate = () => {
     };
 
     const calculateColumnWidths = () => {
-        // Função para calcular automaticamente as larguras das colunas
-        const widths = {
-            id: document.querySelector('th:nth-child(1)').offsetWidth || 100,
-            nome: document.querySelector('th:nth-child(2)').offsetWidth || 150,
-            re: document.querySelector('th:nth-child(3)').offsetWidth || 100
-        };
-        setColumnWidths(widths);
+        const table = document.querySelector('.container-tabela table');
+        if (table) {
+            const columns = table.querySelectorAll('th');
+            // Lógica para calcular e aplicar larguras
+            columns.forEach(column => {
+                column.style.width = `${Math.random() * 100}px`; // Exemplo de ajuste aleatório
+            });
+        }
     };
 
     useEffect(() => {
         if (reportGenerated) {
-            calculateColumnWidths(); // Recalcula as larguras após gerar o relatório
+            calculateColumnWidths(); // Chama a função para calcular larguras
         }
     }, [reportGenerated]);
 
@@ -223,39 +269,9 @@ const RelatorioEUpdate = () => {
                                                             <option value="Afastamento-Acd-Trab">Afastamento Acd Trabalho</option>
                                                             <option value="Atestado">Atestado</option>
                                                             <option value="Atestado-Acd-Trab">Atestado Acd Trabalho</option>
-                                                            <option value="Atestado-Horas">Atestado Horas</option>
-                                                            <option value="Banco-de-Horas">Banco de Horas</option>
-                                                            <option value="Decl-Medica">Declaração Médica</option>
-                                                            <option value="Falta">Falta</option>
-                                                            <option value="Ferias">Férias</option>
-                                                            <option value="Folga-Escala">Folga Escala</option>
-                                                            <option value="Fretado">Fretado</option>
-                                                            <option value="Licenca">Licença</option>
-                                                            <option value="Presenca-HE">Presença (HE)</option>
-                                                            <option value="Sinergia-CX">Sinergia CX</option>
-                                                            <option value="Sinergia-IN">Sinergia IN</option>
-                                                            <option value="Sinergia-INV">Sinergia INV</option>
-                                                            <option value="Sinergia-Loss">Sinergia Loss</option>
-                                                            <option value="Sinergia-MWH">Sinergia MWH</option>
-                                                            <option value="Sinergia-OUT">Sinergia OUT</option>
-                                                            <option value="Sinergia-Qua">Sinergia Qua</option>
-                                                            <option value="Sinergia-RC01">Sinergia RC01</option>
-                                                            <option value="Sinergia-RC-SP10">Sinergia RC-SP10</option>
-                                                            <option value="Sinergia-RET">Sinergia RET</option>
-                                                            <option value="Sinergia-SP01">Sinergia SP01</option>
-                                                            <option value="Sinergia-SP02">Sinergia SP02</option>
-                                                            <option value="Sinergia-SP03">Sinergia SP03</option>
-                                                            <option value="Sinergia-SP04">Sinergia SP04</option>
-                                                            <option value="Sinergia-SP05">Sinergia SP05</option>
-                                                            <option value="Sinergia-SP06">Sinergia SP06</option>
-                                                            <option value="Sinergia-Sortation">Sinergia Sortation</option>
-                                                            <option value="Sinergia-Suspensao">Sinergia Suspensão</option>
-                                                            <option value="Sinergia-SVC">Sinergia SVC</option>
-                                                            <option value="Transferido">Transferido</option>
-                                                            <option value="Treinamento-Ext">Treinamento Ext</option>
-                                                            <option value="Treinamento-Int">Treinamento Int</option>
-                                                            <option value="Treinamento-REP-III">Treinamento REP III</option>
-                                                            <option value="Sinergia-Insumo">Sinergia Insumo</option>
+                                                            <option value="Férias">Férias</option>
+                                                            <option value="Não se Apresentou">Não se Apresentou</option>
+                                                            <option value="Trabalho em casa">Trabalho em casa</option>
                                                         </select>
                                                     </td>
                                                     <td>
@@ -265,7 +281,7 @@ const RelatorioEUpdate = () => {
                                             ))
                                         ) : (
                                             <tr>
-                                                <td colSpan="14">Nenhum dado encontrado.</td>
+                                                <td colSpan="14">Nenhum registro encontrado.</td>
                                             </tr>
                                         )}
                                     </tbody>
@@ -274,8 +290,8 @@ const RelatorioEUpdate = () => {
                         </>
                     )}
                 </div>
+                <Footer />
             </main>
-            <Footer />
         </>
     );
 };
