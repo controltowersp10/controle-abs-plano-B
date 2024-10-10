@@ -343,17 +343,8 @@ th:nth-child(2), td:nth-child(2) {
    background-color: var(--color1);
    z-index: 3;
 }
-
-th:nth-child(3), td:nth-child(3) {
-   position: sticky;
-   left: 0; /* Removido o valor fixo, que será calculado via JS */
-   width: 100px; 
-   background-color: var(--color1);
-   z-index: 3;
-}
 th:nth-child(1),
-th:nth-child(2),
-th:nth-child(3){
+th:nth-child(2){
    background-color: var(--color4);
    position: sticky;
    z-index: 5;
