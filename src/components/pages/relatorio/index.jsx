@@ -7,7 +7,6 @@ import Navbar from '../../Navbar';
 import SideBar from '../../SideBar';
 import Footer from '../../Footer';
 
-// Função para capitalizar o nome
 const capitalizeName = (name) => {
     if (!name) return "";
     return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
@@ -22,7 +21,8 @@ const RelatorioEUpdate = () => {
     const [reportGenerated, setReportGenerated] = useState(false);
     const [viewOnly, setViewOnly] = useState(false);
     const [pendingChanges, setPendingChanges] = useState({});
-    const [buttonLabel, setButtonLabel] = useState("GERAR RELATÓRIO"); // Estado para controlar o texto do botão
+    const [buttonLabel, setButtonLabel] = useState("GERAR RELATÓRIO");
+    const [showViewRecordsButton, setShowViewRecordsButton] = useState(true); // Novo estado para controlar o botão
 
     const fetchData = async () => {
         try {
@@ -98,15 +98,17 @@ const RelatorioEUpdate = () => {
 
     const handleGenerateReport = async () => {
         await fetchData();
-        setViewOnly(false); // Garante que estamos no modo de edição após gerar o relatório
-        setPendingChanges({}); // Reseta as mudanças pendentes ao gerar o relatório
-        setButtonLabel("GERAR RELATÓRIO"); // Volta o nome do botão ao original
+        setViewOnly(false);
+        setPendingChanges({});
+        setButtonLabel("GERAR RELATÓRIO");
+        setShowViewRecordsButton(true); // Mostra o botão "VER REGISTROS" novamente após gerar um novo relatório
     };
 
     const handleViewRecords = () => {
         fetchData();
         setViewOnly(true);
-        setButtonLabel("ATUALIZAR DADOS"); // Altera o nome do botão ao visualizar registros
+        setButtonLabel("ATUALIZAR DADOS");
+        setShowViewRecordsButton(false); // Esconde o botão após a visualização
     };
 
     const handleStatusChange = (representanteId, newStatus) => {
@@ -174,6 +176,7 @@ const RelatorioEUpdate = () => {
         alert("Alterações salvas com sucesso!");
         setPendingChanges({});
         fetchData();
+        setShowViewRecordsButton(true); // Mostra o botão "VER REGISTROS" após salvar
     };
 
     return (
@@ -199,7 +202,7 @@ const RelatorioEUpdate = () => {
                         {reportGenerated && !viewOnly && (
                             <button onClick={handleSave}>SALVAR</button>
                         )}
-                        {reportGenerated && (
+                        {reportGenerated && showViewRecordsButton && (
                             <button onClick={handleViewRecords}>VER REGISTROS</button>
                         )}
                     </div>
@@ -223,13 +226,12 @@ const RelatorioEUpdate = () => {
                                             <th>Turma</th>
                                             <th>Data</th>
                                             <th>Presença</th>
-                                            {!viewOnly && <th>Validação</th>} {/* Exibe somente se não estiver em modo de visualização */}
-                                            <th>Justificativa</th>
+                                            {!viewOnly && <th>Justificativa</th>}
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {filteredData.map((representante, index) => (
-                                            <tr key={index}>
+                                        {filteredData.map(representante => (
+                                            <tr key={representante.RepresentanteId}>
                                                 <td>{representante.ID_Groot}</td>
                                                 <td>{representante.Nome}</td>
                                                 <td>{representante.Matricula}</td>
@@ -241,24 +243,23 @@ const RelatorioEUpdate = () => {
                                                 <td>{representante.Status}</td>
                                                 <td>{representante.Turma}</td>
                                                 <td>{representante.DATA}</td>
-                                                <td>{representante.Presenca}</td>
                                                 <td>
-                                                    {viewOnly ? (
-                                                        representante.Presenca
-                                                    ) : (
-                                                        <select value={pendingChanges[representante.RepresentanteId]?.Presenca || representante.Presenca} onChange={(e) => handleStatusChange(representante.RepresentanteId, e.target.value)}>
-                                                            <option value="">Selecione</option>
-                                                            <option value="Presente">Presente</option>
-                                                            <option value="Ausente">Ausente</option>
-                                                        </select>
-                                                    )}
+                                                    <select
+                                                        value={pendingChanges[representante.RepresentanteId]?.Presenca || representante.Presenca || ""}
+                                                        onChange={(e) => handleStatusChange(representante.RepresentanteId, e.target.value)}
+                                                        disabled={viewOnly}
+                                                    >
+                                                        <option value="">Selecione</option>
+                                                        <option value="PRESENTE">PRESENTE</option>
+                                                        <option value="FALTA">FALTA</option>
+                                                        <option value="FALTA JUSTIFICADA">FALTA JUSTIFICADA</option>
+                                                    </select>
                                                 </td>
                                                 {!viewOnly && (
                                                     <td>
-                                                        <button onClick={() => addJustificativa(representante.RepresentanteId)}>Adicionar Justificativa</button>
+                                                        <button onClick={() => addJustificativa(representante.RepresentanteId)}>ADICIONAR JUSTIFICATIVA</button>
                                                     </td>
                                                 )}
-                                                
                                             </tr>
                                         ))}
                                     </tbody>
