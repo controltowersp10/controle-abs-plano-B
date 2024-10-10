@@ -271,7 +271,7 @@ const RelatorioEUpdate = () => {
                                                             <option value="Atestado-Acd-Trab">Atestado Acd Trabalho</option>
                                                             <option value="Férias">Férias</option>
                                                             <option value="Não se Apresentou">Não se Apresentou</option>
-                                                            <option value="Trabalho em casa">Trabalho em casa</option>
+                                                            <option value="Trabalho em casa">Trabalho em casa</option> 
                                                         </select>
                                                     </td>
                                                     <td>
