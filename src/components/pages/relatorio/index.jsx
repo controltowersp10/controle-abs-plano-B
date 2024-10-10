@@ -7,6 +7,12 @@ import Navbar from '../../Navbar';
 import SideBar from '../../SideBar';
 import Footer from '../../Footer';
 
+// Função para capitalizar o nome
+const capitalizeName = (name) => {
+    if (!name) return "";
+    return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
+};
+
 const RelatorioEUpdate = () => {
     const [representanteArray, setRepresentanteArray] = useState([]);
     const [filteredData, setFilteredData] = useState([]);
@@ -16,6 +22,7 @@ const RelatorioEUpdate = () => {
     const [reportGenerated, setReportGenerated] = useState(false);
     const [viewOnly, setViewOnly] = useState(false);
     const [pendingChanges, setPendingChanges] = useState({});
+    const [buttonLabel, setButtonLabel] = useState("GERAR RELATÓRIO"); // Estado para controlar o texto do botão
 
     const fetchData = async () => {
         try {
@@ -93,11 +100,13 @@ const RelatorioEUpdate = () => {
         await fetchData();
         setViewOnly(false); // Garante que estamos no modo de edição após gerar o relatório
         setPendingChanges({}); // Reseta as mudanças pendentes ao gerar o relatório
+        setButtonLabel("GERAR RELATÓRIO"); // Volta o nome do botão ao original
     };
 
     const handleViewRecords = () => {
         fetchData();
         setViewOnly(true);
+        setButtonLabel("ATUALIZAR DADOS"); // Altera o nome do botão ao visualizar registros
     };
 
     const handleStatusChange = (representanteId, newStatus) => {
@@ -186,7 +195,7 @@ const RelatorioEUpdate = () => {
                         <label htmlFor="data">Data do relatório:</label>
                         <input type="date" id="data" value={searchData} onChange={(e) => setSearchData(e.target.value)} />
 
-                        <button onClick={handleGenerateReport}>GERAR RELATÓRIO</button>
+                        <button onClick={handleGenerateReport}>{buttonLabel}</button>
                         {reportGenerated && !viewOnly && (
                             <button onClick={handleSave}>SALVAR</button>
                         )}
@@ -219,49 +228,39 @@ const RelatorioEUpdate = () => {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {filteredData.length > 0 ? (
-                                            filteredData.map((item, index) => (
-                                                <tr key={index}>
-                                                    <td>{item.ID_Groot}</td>
-                                                    <td>{capitalizeName(item.Nome)}</td>
-                                                    <td>{item.Matricula}</td>
-                                                    <td>{item.Turno}</td>
-                                                    <td>{item.Escala_Padrao}</td>
-                                                    <td>{item.Cargo_Padrao}</td>
-                                                    <td>{item.Area_Padrao}</td>
-                                                    <td>{item.Empresa}</td>
-                                                    <td>{item.Status}</td>
-                                                    <td>{item.Turma}</td>
-                                                    <td>{formatDate(item.DATA)}</td>
-                                                    <td>{item.Presenca}</td>
-                                                    {!viewOnly && (
-                                                        <td>
-                                                            <select defaultValue={item.Presenca} onChange={(e) => handleStatusChange(item.RepresentanteId, e.target.value)}>
-                                                                <option value="">Selecione</option>
-                                                                <option value="Presente">Presente</option>
-                                                                <option value="Ausente">Ausente</option>
-                                                                <option value="Falta Justificada">Falta Justificada</option>
-                                                            </select>
-                                                        </td>
+                                        {filteredData.map((representante, index) => (
+                                            <tr key={index}>
+                                                <td>{representante.ID_Groot}</td>
+                                                <td>{representante.Nome}</td>
+                                                <td>{representante.Matricula}</td>
+                                                <td>{representante.Turno}</td>
+                                                <td>{representante.Escala_Padrao}</td>
+                                                <td>{representante.Cargo_Padrao}</td>
+                                                <td>{representante.Area_Padrao}</td>
+                                                <td>{representante.Empresa}</td>
+                                                <td>{representante.Status}</td>
+                                                <td>{representante.Turma}</td>
+                                                <td>{representante.DATA}</td>
+                                                <td>{representante.Presenca}</td>
+                                                <td>
+                                                    {viewOnly ? (
+                                                        representante.Presenca
+                                                    ) : (
+                                                        <select value={pendingChanges[representante.RepresentanteId]?.Presenca || representante.Presenca} onChange={(e) => handleStatusChange(representante.RepresentanteId, e.target.value)}>
+                                                            <option value="">Selecione</option>
+                                                            <option value="Presente">Presente</option>
+                                                            <option value="Ausente">Ausente</option>
+                                                        </select>
                                                     )}
-                                                    {viewOnly && (
-                                                        <td>{item.Justificativa || "Nenhuma justificativa"}
-                                                        </td>
-                                                    )}
-                                                    {!viewOnly && (
-                                                        <td>
-                                                            <button onClick={() => addJustificativa(item.RepresentanteId)}>
-                                                                Adicionar Justificativa
-                                                            </button>
-                                                        </td>
-                                                    )}
-                                                </tr>
-                                            ))
-                                        ) : (
-                                            <tr>
-                                                <td colSpan="13">Nenhum registro encontrado.</td>
+                                                </td>
+                                                {!viewOnly && (
+                                                    <td>
+                                                        <button onClick={() => addJustificativa(representante.RepresentanteId)}>Adicionar Justificativa</button>
+                                                    </td>
+                                                )}
+                                                
                                             </tr>
-                                        )}
+                                        ))}
                                     </tbody>
                                 </table>
                             </div>
@@ -272,15 +271,6 @@ const RelatorioEUpdate = () => {
             <Footer />
         </>
     );
-};
-
-const capitalizeName = (name) => {
-    return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
-};
-
-const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
 };
 
 export default RelatorioEUpdate;
