@@ -15,7 +15,6 @@ const RelatorioEUpdate = () => {
     const [searchData, setSearchData] = useState("");
     const [reportGenerated, setReportGenerated] = useState(false);
     const [pendingChanges, setPendingChanges] = useState({});
-    const [columnWidths, setColumnWidths] = useState({}); // Novo estado para armazenar as larguras das colunas
 
     const fetchData = async () => {
         const db = getDatabase(app);
@@ -66,7 +65,7 @@ const RelatorioEUpdate = () => {
             ...prev,
             [representanteId]: {
                 ...prev[representanteId],
-                Status: newStatus
+                presenca: newStatus // Atualizando o campo correto
             }
         }));
     };
@@ -78,7 +77,7 @@ const RelatorioEUpdate = () => {
                 ...prev,
                 [representanteId]: {
                     ...prev[representanteId],
-                    Justificativa: justificativa
+                    Justificativa: justificativa // Atualizando o campo correto
                 }
             }));
         } else {
@@ -90,15 +89,29 @@ const RelatorioEUpdate = () => {
         const db = getDatabase(app);
 
         for (const representanteId in pendingChanges) {
-            const dbRef = ref(db, `Chamada/Representante/${representanteId}`);
+            const representanteData = pendingChanges[representanteId];
+            const { DATA } = representanteArray.find(item => item.RepresentanteId === representanteId); // Captura a data original do representante
+
+            // Caminho para o histórico baseado na data e ID do representante
+            const dbRef = ref(db, `Historico/Chamada/Representante/${representanteId}/${DATA}`);
             const snapshot = await get(dbRef);
 
             if (snapshot.exists()) {
+                // Se já existir, atualize apenas os campos modificados (presença e/ou justificativa)
+                const existingData = snapshot.val();
                 const updatedData = {
-                    ...snapshot.val(),
-                    ...pendingChanges[representanteId]
+                    ...existingData,
+                    ...(representanteData.presenca && { presenca: representanteData.presenca }), // Atualiza o campo de presença se modificado
+                    ...(representanteData.Justificativa && { Justificativa: representanteData.Justificativa }) // Atualiza o campo de justificativa se modificado
                 };
                 await set(dbRef, updatedData);
+            } else {
+                // Se não existir, crie um novo registro apenas com os campos modificados
+                const newData = {
+                    ...(representanteData.presenca && { presenca: representanteData.presenca }),
+                    ...(representanteData.Justificativa && { Justificativa: representanteData.Justificativa })
+                };
+                await set(dbRef, newData);
             }
         }
 
@@ -150,10 +163,10 @@ const RelatorioEUpdate = () => {
                         <input type="text" id="NomeTL" name="NomeTL" value={searchNome} onChange={(e) => setSearchNome(e.target.value)} placeholder="Digite seu nome" />
 
                         <label htmlFor="RETL">RE:</label>
-                        <input type="text" id="RETL" name="RETL" value={searchRE} onChange={(e) => setSearchRE(e.target.value)} placeholder="Digite seu RE"/>
+                        <input type="text" id="RETL" name="RETL" value={searchRE} onChange={(e) => setSearchRE(e.target.value)} placeholder="Digite seu RE" />
 
                         <label htmlFor="data">Data do relatório:</label>
-                        <input type="date" id="data" name="data" value={searchData} onChange={(e) => setSearchData(e.target.value)}/>
+                        <input type="date" id="data" name="data" value={searchData} onChange={(e) => setSearchData(e.target.value)} />
 
                         <button onClick={handleGenerateReport}>GERAR RELATÓRIO</button>
 
@@ -192,7 +205,7 @@ const RelatorioEUpdate = () => {
                                                 <tr key={index}>
                                                     <td>{item.ID_Groot}</td>
                                                     <td>{capitalizeName(item.Nome)}</td>
-                                                    <td>{item.Matricula}</td>
+                                                    <td>{item.Matricula}</td> {/*RE*/}
                                                     <td>{item.Turno}</td>
                                                     <td>{item.Escala_Padrao}</td>
                                                     <td>{item.Cargo_Padrao}</td>
@@ -203,58 +216,56 @@ const RelatorioEUpdate = () => {
                                                     <td>{formatDate(item.DATA)}</td>
                                                     <td>{item.presenca}</td>
                                                     <td>
-                                                    <select defaultValue={item.presenca} onChange={(e) => handleStatusChange(item.RepresentanteId, e.target.value)}>
-                                                    <option value="">Selecione</option>
-                                                    <option value="Presente">Presente</option>
-                                                    <option value="Afastamento">Afastamento</option>
-                                                    <option value="Afastamento-Acd-Trab">Afastamento Acd Trabalho</option>
-                                                    <option value="Atestado">Atestado</option>
-                                                    <option value="Atestado-Acd-Trab">Atestado Acd Trabalho</option>
-                                                    <option value="Atestado-Horas">Atestado Horas</option>
-                                                    <option value="Banco-de-Horas">Banco de Horas</option>
-                                                    <option value="Decl-Medica">Declaração Médica</option>
-                                                    <option value="Falta">Falta</option>
-                                                    <option value="Ferias">Férias</option>
-                                                    <option value="Folga-Escala">Folga Escala</option>
-                                                    <option value="Fretado">Fretado</option>
-                                                    <option value="Licenca">Licença</option>
-                                                    <option value="Presenca-HE">Presença (HE)</option>
-                                                    <option value="Sinergia-CX">Sinergia CX</option>
-                                                    <option value="Sinergia-IN">Sinergia IN</option>
-                                                    <option value="Sinergia-INV">Sinergia INV</option>
-                                                    <option value="Sinergia-Loss">Sinergia Loss</option>
-                                                    <option value="Sinergia-MWH">Sinergia MWH</option>
-                                                    <option value="Sinergia-OUT">Sinergia OUT</option>
-                                                    <option value="Sinergia-Qua">Sinergia Qua</option>
-                                                    <option value="Sinergia-RC01">Sinergia RC01</option>
-                                                    <option value="Sinergia-RC-SP10">Sinergia RC-SP10</option>
-                                                    <option value="Sinergia-RET">Sinergia RET</option>
-                                                    <option value="Sinergia-SP01">Sinergia SP01</option>
-                                                    <option value="Sinergia-SP02">Sinergia SP02</option>
-                                                    <option value="Sinergia-SP03">Sinergia SP03</option>
-                                                    <option value="Sinergia-SP04">Sinergia SP04</option>
-                                                    <option value="Sinergia-SP05">Sinergia SP05</option>
-                                                    <option value="Sinergia-SP06">Sinergia SP06</option>
-                                                    <option value="Sinergia-Sortation">Sinergia Sortation</option>
-                                                    <option value="Sinergia-Suspensao">Sinergia Suspensão</option>
-                                                    <option value="Sinergia-SVC">Sinergia SVC</option>
-                                                    <option value="Transferido">Transferido</option>
-                                                    <option value="Treinamento-Ext">Treinamento Ext</option>
-                                                    <option value="Treinamento-Int">Treinamento Int</option>
-                                                    <option value="Treinamento-REP-III">Treinamento REP III</option>
-                                                    <option value="Sinergia-Insumo">Sinergia Insumo</option>
-                                                </select>
+                                                        <select defaultValue={item.presenca} onChange={(e) => handleStatusChange(item.RepresentanteId, e.target.value)}>
+                                                            <option value="">Selecione</option>
+                                                            <option value="Presente">Presente</option>
+                                                            <option value="Afastamento">Afastamento</option>
+                                                            <option value="Afastamento-Acd-Trab">Afastamento Acd Trabalho</option>
+                                                            <option value="Atestado">Atestado</option>
+                                                            <option value="Atestado-Acd-Trab">Atestado Acd Trabalho</option>
+                                                            <option value="Atestado-Horas">Atestado Horas</option>
+                                                            <option value="Banco-de-Horas">Banco de Horas</option>
+                                                            <option value="Decl-Medica">Declaração Médica</option>
+                                                            <option value="Falta">Falta</option>
+                                                            <option value="Ferias">Férias</option>
+                                                            <option value="Folga-Escala">Folga Escala</option>
+                                                            <option value="Fretado">Fretado</option>
+                                                            <option value="Licenca">Licença</option>
+                                                            <option value="Presenca-HE">Presença (HE)</option>
+                                                            <option value="Sinergia-CX">Sinergia CX</option>
+                                                            <option value="Sinergia-IN">Sinergia IN</option>
+                                                            <option value="Sinergia-INV">Sinergia INV</option>
+                                                            <option value="Sinergia-Loss">Sinergia Loss</option>
+                                                            <option value="Sinergia-MWH">Sinergia MWH</option>
+                                                            <option value="Sinergia-OUT">Sinergia OUT</option>
+                                                            <option value="Sinergia-Qua">Sinergia Qua</option>
+                                                            <option value="Sinergia-RC01">Sinergia RC01</option>
+                                                            <option value="Sinergia-RC-SP10">Sinergia RC-SP10</option>
+                                                            <option value="Sinergia-RET">Sinergia RET</option>
+                                                            <option value="Sinergia-SP01">Sinergia SP01</option>
+                                                            <option value="Sinergia-SP02">Sinergia SP02</option>
+                                                            <option value="Sinergia-SP03">Sinergia SP03</option>
+                                                            <option value="Sinergia-SP04">Sinergia SP04</option>
+                                                            <option value="Sinergia-SP05">Sinergia SP05</option>
+                                                            <option value="Sinergia-SP06">Sinergia SP06</option>
+                                                            <option value="Sinergia-Sortation">Sinergia Sortation</option>
+                                                            <option value="Sinergia-Suspensao">Sinergia Suspensão</option>
+                                                            <option value="Sinergia-SVC">Sinergia SVC</option>
+                                                            <option value="Transferido">Transferido</option>
+                                                            <option value="Treinamento-Ext">Treinamento Ext</option>
+                                                            <option value="Treinamento-Int">Treinamento Int</option>
+                                                            <option value="Treinamento-REP-III">Treinamento REP III</option>
+                                                            <option value="Sinergia-Insumo">Sinergia Insumo</option>
+                                                        </select>
                                                     </td>
                                                     <td>
-                                                        <button onClick={() => addJustificativa(item.RepresentanteId)}>
-                                                            Adicionar Justificativa
-                                                        </button>
+                                                        <button onClick={() => addJustificativa(item.RepresentanteId)}>Adicionar Justificativa</button>
                                                     </td>
                                                 </tr>
                                             ))
                                         ) : (
                                             <tr>
-                                                <td colSpan="17">Nenhum dado disponível</td>
+                                                <td colSpan="14">Nenhum dado encontrado.</td>
                                             </tr>
                                         )}
                                     </tbody>
