@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import Logo from "../../assets/img/logoABS.png"
+import Logo from "../../assets/img/ControlABS.png"
 import '../../estilo.css'; // Corrigido para garantir que o CSS seja importado corretamente
 
 const Navbar = () => {
