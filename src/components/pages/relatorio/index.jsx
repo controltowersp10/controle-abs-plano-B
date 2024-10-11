@@ -7,6 +7,7 @@ import Navbar from '../../Navbar';
 import SideBar from '../../SideBar';
 import Footer from '../../Footer';
 
+// Função para capitalizar o nome
 const capitalizeName = (name) => {
     if (!name) return "";
     return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
@@ -21,8 +22,7 @@ const RelatorioEUpdate = () => {
     const [reportGenerated, setReportGenerated] = useState(false);
     const [viewOnly, setViewOnly] = useState(false);
     const [pendingChanges, setPendingChanges] = useState({});
-    const [buttonLabel, setButtonLabel] = useState("GERAR RELATÓRIO");
-    const [showViewRecordsButton, setShowViewRecordsButton] = useState(true); // Novo estado para controlar o botão
+    const [buttonLabel, setButtonLabel] = useState("GERAR RELATÓRIO"); // Estado para controlar o texto do botão
 
     const fetchData = async () => {
         try {
@@ -98,17 +98,15 @@ const RelatorioEUpdate = () => {
 
     const handleGenerateReport = async () => {
         await fetchData();
-        setViewOnly(false);
-        setPendingChanges({});
-        setButtonLabel("GERAR RELATÓRIO");
-        setShowViewRecordsButton(true); // Mostra o botão "VER REGISTROS" novamente após gerar um novo relatório
+        setViewOnly(false); // Garante que estamos no modo de edição após gerar o relatório
+        setPendingChanges({}); // Reseta as mudanças pendentes ao gerar o relatório
+        setButtonLabel("GERAR RELATÓRIO"); // Volta o nome do botão ao original
     };
 
     const handleViewRecords = () => {
         fetchData();
         setViewOnly(true);
-        setButtonLabel("ATUALIZAR DADOS");
-        setShowViewRecordsButton(false); // Esconde o botão após a visualização
+        setButtonLabel("ATUALIZAR DADOS"); // Altera o nome do botão ao visualizar registros
     };
 
     const handleStatusChange = (representanteId, newStatus) => {
@@ -176,7 +174,6 @@ const RelatorioEUpdate = () => {
         alert("Alterações salvas com sucesso!");
         setPendingChanges({});
         fetchData();
-        setShowViewRecordsButton(true); // Mostra o botão "VER REGISTROS" após salvar
     };
 
     return (
@@ -202,7 +199,7 @@ const RelatorioEUpdate = () => {
                         {reportGenerated && !viewOnly && (
                             <button onClick={handleSave}>SALVAR</button>
                         )}
-                        {reportGenerated && showViewRecordsButton && (
+                        {reportGenerated && (
                             <button onClick={handleViewRecords}>VER REGISTROS</button>
                         )}
                     </div>
@@ -226,12 +223,13 @@ const RelatorioEUpdate = () => {
                                             <th>Turma</th>
                                             <th>Data</th>
                                             <th>Presença</th>
-                                            {!viewOnly && <th>Justificativa</th>}
+                                            {!viewOnly && <th>Validação</th>} {/* Exibe somente se não estiver em modo de visualização */}
+                                            <th>Justificativa</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {filteredData.map(representante => (
-                                            <tr key={representante.RepresentanteId}>
+                                        {filteredData.map((representante, index) => (
+                                            <tr key={index}>
                                                 <td>{representante.ID_Groot}</td>
                                                 <td>{representante.Nome}</td>
                                                 <td>{representante.Matricula}</td>
@@ -243,23 +241,60 @@ const RelatorioEUpdate = () => {
                                                 <td>{representante.Status}</td>
                                                 <td>{representante.Turma}</td>
                                                 <td>{representante.DATA}</td>
+                                                <td>{representante.Presenca}</td>
                                                 <td>
-                                                    <select
-                                                        value={pendingChanges[representante.RepresentanteId]?.Presenca || representante.Presenca || ""}
-                                                        onChange={(e) => handleStatusChange(representante.RepresentanteId, e.target.value)}
-                                                        disabled={viewOnly}
-                                                    >
-                                                        <option value="">Selecione</option>
-                                                        <option value="PRESENTE">PRESENTE</option>
-                                                        <option value="FALTA">FALTA</option>
-                                                        <option value="FALTA JUSTIFICADA">FALTA JUSTIFICADA</option>
-                                                    </select>
+                                                    {viewOnly ? (
+                                                        representante.Justificativa || "Sem justificativa"
+                                                    ) : (
+                                                        <select value={pendingChanges[representante.RepresentanteId]?.Presenca || representante.Presenca} onChange={(e) => handleStatusChange(representante.RepresentanteId, e.target.value)}>
+                                                            <option value="">Selecione</option>
+                                                            <option value="Presente">Presente</option>
+                                                            <option value="Afastamento">Afastamento</option>
+                                                            <option value="Afastamento-Acd-Trab">Afastamento Acd Trabalho</option>
+                                                            <option value="Atestado">Atestado</option>
+                                                            <option value="Atestado-Acd-Trab">Atestado Acd Trabalho</option>
+                                                            <option value="Atestado-Horas">Atestado Horas</option>
+                                                            <option value="Banco-de-Horas">Banco de Horas</option>
+                                                            <option value="Decl-Medica">Declaração Médica</option>
+                                                            <option value="Falta">Falta</option>
+                                                            <option value="Ferias">Férias</option>
+                                                            <option value="Folga-Escala">Folga Escala</option>
+                                                            <option value="Fretado">Fretado</option>
+                                                            <option value="Licenca">Licença</option>
+                                                            <option value="Presenca-HE">Presença (HE)</option>
+                                                            <option value="Sinergia-CX">Sinergia CX</option>
+                                                            <option value="Sinergia-IN">Sinergia IN</option>
+                                                            <option value="Sinergia-INV">Sinergia INV</option>
+                                                            <option value="Sinergia-Loss">Sinergia Loss</option>
+                                                            <option value="Sinergia-MWH">Sinergia MWH</option>
+                                                            <option value="Sinergia-OUT">Sinergia OUT</option>
+                                                            <option value="Sinergia-Qua">Sinergia Qua</option>
+                                                            <option value="Sinergia-RC01">Sinergia RC01</option>
+                                                            <option value="Sinergia-RC-SP10">Sinergia RC-SP10</option>
+                                                            <option value="Sinergia-RET">Sinergia RET</option>
+                                                            <option value="Sinergia-SP01">Sinergia SP01</option>
+                                                            <option value="Sinergia-SP02">Sinergia SP02</option>
+                                                            <option value="Sinergia-SP03">Sinergia SP03</option>
+                                                            <option value="Sinergia-SP04">Sinergia SP04</option>
+                                                            <option value="Sinergia-SP05">Sinergia SP05</option>
+                                                            <option value="Sinergia-SP06">Sinergia SP06</option>
+                                                            <option value="Sinergia-Sortation">Sinergia Sortation</option>
+                                                            <option value="Sinergia-Suspensao">Sinergia Suspensão</option>
+                                                            <option value="Sinergia-SVC">Sinergia SVC</option>
+                                                            <option value="Transferido">Transferido</option>
+                                                            <option value="Treinamento-Ext">Treinamento Ext</option>
+                                                            <option value="Treinamento-Int">Treinamento Int</option>
+                                                            <option value="Treinamento-REP-III">Treinamento REP III</option>
+                                                            <option value="Sinergia-Insumo">Sinergia Insumo</option>
+                                                            <option value="Sinergia-Insumo">Sinergia Insumo</option>
+                                                        </select>
+                                                    )}
                                                 </td>
                                                 {!viewOnly && (
                                                     <td>
-                                                        <button onClick={() => addJustificativa(representante.RepresentanteId)}>ADICIONAR JUSTIFICATIVA</button>
+                                                        <button onClick={() => addJustificativa(representante.RepresentanteId)}>Adicionar Justificativa</button>
                                                     </td>
-                                                )}
+                                                )} 
                                             </tr>
                                         ))}
                                     </tbody>

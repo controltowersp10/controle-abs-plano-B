@@ -349,7 +349,9 @@ th:nth-child(2){
    position: sticky;
    z-index: 5;
 }
-
+td:nth-child(13){/*Faz com que somente as celulas da coluna justifiativa quebre linha quando necessario */
+   white-space: wrap; 
+}
 
 
 /* Estilo para o cabeçalho da tabela */
@@ -375,7 +377,7 @@ tbody tr:hover {
 }
 
 /* Estilo para as células vazias (quando nenhum dado é encontrado) */
-td[colspan="17"] {
+td[colspan="14"] {
    text-align: center;
    color: #888;
    font-style: italic;
