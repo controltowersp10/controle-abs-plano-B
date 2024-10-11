@@ -130,7 +130,7 @@ const RelatorioEUpdate = () => {
                 }
             }));
         } else {
-            alert("Nenhuma justificativa inserida.");
+            alert("Nenhuma justificativa inserida!");
         }
     };
 
