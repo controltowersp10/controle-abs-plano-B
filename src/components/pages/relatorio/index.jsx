@@ -176,6 +176,14 @@ const RelatorioEUpdate = () => {
         fetchData();
     };
 
+    const capitalizeName = (name) => {
+        return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
+    };
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+    };
+
     return (
         <>
             <Helmet>
@@ -206,7 +214,7 @@ const RelatorioEUpdate = () => {
 
                     {reportGenerated && (
                         <>
-                            <h2>Olá {capitalizeName(searchNome)},&nbsp; Aqui está o relatório <span>ABS</span> da sua equipe!</h2>
+                            <h2>Olá {capitalizeName(searchNome)},&nbsp; Aqui está o relatório <span>ABS</span> da sua equipe <span>!</span></h2>
                             <div className="container-tabela">
                                 <table>
                                     <thead>
@@ -231,7 +239,7 @@ const RelatorioEUpdate = () => {
                                         {filteredData.map((representante, index) => (
                                             <tr key={index}>
                                                 <td>{representante.ID_Groot}</td>
-                                                <td>{representante.Nome}</td>
+                                                <td>{capitalizeName(representante.Nome)}</td>
                                                 <td>{representante.Matricula}</td>
                                                 <td>{representante.Turno}</td>
                                                 <td>{representante.Escala_Padrao}</td>
@@ -240,7 +248,7 @@ const RelatorioEUpdate = () => {
                                                 <td>{representante.Empresa}</td>
                                                 <td>{representante.Status}</td>
                                                 <td>{representante.Turma}</td>
-                                                <td>{representante.DATA}</td>
+                                                <td>{formatDate(representante.DATA)}</td>
                                                 <td>{representante.Presenca}</td>
                                                 <td>
                                                     {viewOnly ? (
