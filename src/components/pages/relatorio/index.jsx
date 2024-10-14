@@ -7,12 +7,6 @@ import Navbar from '../../Navbar';
 import SideBar from '../../SideBar';
 import Footer from '../../Footer';
 
-// Função para capitalizar o nome
-const capitalizeName = (name) => {
-    if (!name) return "";
-    return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
-};
-
 const RelatorioEUpdate = () => {
     const [representanteArray, setRepresentanteArray] = useState([]);
     const [filteredData, setFilteredData] = useState([]);
@@ -22,57 +16,66 @@ const RelatorioEUpdate = () => {
     const [reportGenerated, setReportGenerated] = useState(false);
     const [viewOnly, setViewOnly] = useState(false);
     const [pendingChanges, setPendingChanges] = useState({});
-    const [buttonLabel, setButtonLabel] = useState("GERAR RELATÓRIO"); // Estado para controlar o texto do botão
+    const [buttonLabel, setButtonLabel] = useState("GERAR RELATÓRIO");
+    const [showGenerateButton, setShowGenerateButton] = useState(true); // Estado para controlar a visibilidade do botão "GERAR RELATÓRIO"
 
     const fetchData = async () => {
         try {
-            const db = getDatabase(app);
-            const dbRef = ref(db, "Chamada/Representante");
-            const snapshot = await get(dbRef);
-
+            const db = getDatabase(app);// Obtém a instância do banco de dados Firebase
+            const dbRef = ref(db, "Chamada/Representante");// Cria uma referência para a coleção "Chamada/Representante" no banco de dados
+            const snapshot = await get(dbRef); // Faz uma solicitação para obter os dados dessa referência
+        
+            // Verifica se os dados existem na referência
             if (snapshot.exists()) {
-                const myData = snapshot.val();
+                const myData = snapshot.val();// Obtém os dados como um objeto
+                // Converte o objeto em um array, adicionando o ID do representante como uma nova propriedade
                 const temporaryArray = Object.keys(myData).map(myFireid => ({
                     ...myData[myFireid],
-                    RepresentanteId: myFireid
+                    RepresentanteId: myFireid // Adiciona o ID do representante ao objeto
                 }));
-
+                // Verifica se uma data de busca foi fornecida
                 if (searchData) {
-                    const historicoRef = ref(db, `Historico/Chamada/${searchData}`);
-                    const historicoSnapshot = await get(historicoRef);
+                    
+                    const historicoRef = ref(db, `Historico/Chamada/${searchData}`);// Cria uma referência para os dados históricos da data especificada
+                    const historicoSnapshot = await get(historicoRef); // Obtém os dados históricos
                     let historicoData = [];
 
-                    if (historicoSnapshot.exists()) {
-                        historicoData = historicoSnapshot.val();
+                    if (historicoSnapshot.exists()) {// Verifica se os dados históricos existem
+                        
+                        historicoData = historicoSnapshot.val();// Obtém os dados históricos como um objeto
+                        // Converte o objeto de dados históricos em um array, adicionando o ID do histórico e a data
                         historicoData = Object.keys(historicoData).map(historicoId => ({
                             ...historicoData[historicoId],
-                            RepresentanteId: historicoId,
-                            DATA: searchData
+                            RepresentanteId: historicoId, // Adiciona o ID do histórico ao objeto
+                            DATA: searchData // Adiciona a data ao objeto
                         }));
                     }
-
+        
+                    // Combina os dados dos representantes com os dados históricos
                     const combinedData = temporaryArray.map(item => {
+                        // Encontra o item de histórico correspondente ao representante
                         const historicoItem = historicoData.find(h => h.RepresentanteId === item.RepresentanteId) || {};
                         return {
                             ...item,
+                            // Adiciona os dados de presença e justificativa, se existirem, caso contrário, define como vazio
                             Presenca: historicoItem.Presenca || "",
                             Justificativa: historicoItem.Justificativa || ""
                         };
                     });
-
-                    setRepresentanteArray(combinedData);
-                    applyFilters(combinedData);
+                    setRepresentanteArray(combinedData);// Atualiza o estado do componente com os dados combinados
+                    applyFilters(combinedData);// Aplica os filtros aos dados combinados
                 } else {
-                    setRepresentanteArray(temporaryArray);
-                    applyFilters(temporaryArray);
+                    setRepresentanteArray(temporaryArray); // Se não houver data de busca, simplesmente atualiza o estado com os dados temporários
+                    applyFilters(temporaryArray);// Aplica os filtros aos dados temporários
                 }
             } else {
-                alert("Nenhum dado disponível");
+                alert("Nenhum dado disponível");// Se não houver dados disponíveis, exibe um alerta
             }
         } catch (error) {
+            // Captura e exibe erros, caso ocorra uma falha na busca dos dados
             console.error("Erro ao buscar dados:", error);
             alert("Erro ao buscar dados. Tente novamente mais tarde.");
-        }
+        }        
     };
 
     const applyFilters = (data) => {
@@ -94,6 +97,7 @@ const RelatorioEUpdate = () => {
 
         setFilteredData(filtered);
         setReportGenerated(true);
+        setShowGenerateButton(false); // Oculta o botão "GERAR RELATÓRIO" após a geração
     };
 
     const handleGenerateReport = async () => {
@@ -101,13 +105,9 @@ const RelatorioEUpdate = () => {
         setViewOnly(false); // Garante que estamos no modo de edição após gerar o relatório
         setPendingChanges({}); // Reseta as mudanças pendentes ao gerar o relatório
         setButtonLabel("GERAR RELATÓRIO"); // Volta o nome do botão ao original
+        setShowGenerateButton(false); // Esconde o botão "GERAR RELATÓRIO"
     };
 
-    const handleViewRecords = () => {
-        fetchData();
-        setViewOnly(true);
-        setButtonLabel("ATUALIZAR DADOS"); // Altera o nome do botão ao visualizar registros
-    };
 
     const handleStatusChange = (representanteId, newStatus) => {
         setPendingChanges(prev => ({
@@ -176,14 +176,34 @@ const RelatorioEUpdate = () => {
         fetchData();
     };
 
-    const capitalizeName = (name) => {
-        return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
-    };
-    const formatDate = (dateString) => {
-        const date = new Date(dateString);
-        return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+    const capitalizeName = (name) => { 
+        return name.toUpperCase();
     };
 
+    const formatDate = (dateString) => {
+        const date = new Date(dateString + "T00:00:00");
+        return date.toLocaleDateString('pt-BR', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        });
+    };
+    const handleViewRecords = () => {
+        fetchData();
+        setViewOnly(true);
+        setButtonLabel("ATUALIZAR DADOS"); // Altera o nome do botão ao visualizar registros
+        setShowGenerateButton(true); // Garante que o botão "GERAR RELATÓRIO" apareça como "ATUALIZAR DADOS"
+    };
+    // Atualiza a visibilidade do botão "GERAR RELATÓRIO" ao editar o nome do Team Leader
+    useEffect(() => {
+        if (searchNome.trim() && !viewOnly) {
+            setShowGenerateButton(true);
+            setButtonLabel("GERAR RELATÓRIO"); // Reconfigura o botão para "GERAR RELATÓRIO" quando estiver em modo de edição
+        } else if (viewOnly) {
+            setButtonLabel("ATUALIZAR DADOS"); // Altera o nome do botão ao visualizar registros
+        }
+    }, [searchNome, viewOnly]);
+    
     return (
         <>
             <Helmet>
@@ -203,18 +223,25 @@ const RelatorioEUpdate = () => {
                         <label htmlFor="data">Data do relatório:</label>
                         <input type="date" id="data" value={searchData} onChange={(e) => setSearchData(e.target.value)} />
 
-                        <button onClick={handleGenerateReport}>{buttonLabel}</button>
-                        {reportGenerated && !viewOnly && (
+                        {showGenerateButton && ( // Exibe o botão "GERAR RELATÓRIO" apenas se o relatório ainda não foi gerado
+                            <button onClick={handleGenerateReport}>{buttonLabel}</button>
+                        )}
+                        {reportGenerated && !viewOnly && ( // Exibe o botão "SALVAR" somente quando não está no modo de visualização
                             <button onClick={handleSave}>SALVAR</button>
                         )}
-                        {reportGenerated && (
+                        {reportGenerated && !viewOnly && ( // Exibe o botão "VER REGISTROS" quando não está no modo de visualização
                             <button onClick={handleViewRecords}>VER REGISTROS</button>
                         )}
+                        {viewOnly && ( // Exibe o botão "ATUALIZAR DADOS" quando está no modo de visualização
+                            <button onClick={handleGenerateReport}>{buttonLabel}</button>
+                         )}
+
+                        
                     </div>
 
                     {reportGenerated && (
                         <>
-                            <h2>Olá {capitalizeName(searchNome)},&nbsp; Aqui está o relatório <span>ABS</span> da sua equipe <span>!</span></h2>
+                            <h2>Olá <span>{capitalizeName(searchNome)}</span>,&nbsp; Aqui está o relatório <span>ABS</span> da data <span>{formatDate(searchData)}</span> !</h2>
                             <div className="container-tabela">
                                 <table>
                                     <thead>
