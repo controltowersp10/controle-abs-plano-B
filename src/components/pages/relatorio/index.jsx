@@ -13,11 +13,26 @@ const RelatorioEUpdate = () => {
     const [searchNome, setSearchNome] = useState("");
     const [searchRE, setSearchRE] = useState("");
     const [searchData, setSearchData] = useState("");
+    const [showDateField, setShowDateField] = useState(false); // Novo estado para controlar a visibilidade do campo de data
     const [reportGenerated, setReportGenerated] = useState(false);
     const [viewOnly, setViewOnly] = useState(false);
     const [pendingChanges, setPendingChanges] = useState({});
     const [buttonLabel, setButtonLabel] = useState("GERAR RELATÓRIO");
     const [showGenerateButton, setShowGenerateButton] = useState(true); // Estado para controlar a visibilidade do botão "GERAR RELATÓRIO"
+
+        // Função para obter a data atual formatada como 'YYYY-MM-DD'
+        const getCurrentDate = () => {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0'); // Adiciona o zero à esquerda
+            const day = String(today.getDate()).padStart(2, '0'); // Adiciona o zero à esquerda
+            return `${year}-${month}-${day}`;
+        };
+        useEffect(() => {
+            // Definir a data atual quando o componente for montado
+            const currentDate = getCurrentDate();
+            setSearchData(currentDate); // Define a data atual como o valor inicial
+        }, []);
 
     const fetchData = async () => {
         try {
@@ -191,8 +206,9 @@ const RelatorioEUpdate = () => {
     const handleViewRecords = () => {
         fetchData();
         setViewOnly(true);
-        setButtonLabel("ATUALIZAR DADOS"); // Altera o nome do botão ao visualizar registros
-        setShowGenerateButton(true); // Garante que o botão "GERAR RELATÓRIO" apareça como "ATUALIZAR DADOS"
+        setButtonLabel("ATUALIZAR DADOS");
+        setShowGenerateButton(true);
+        setShowDateField(true); // Mostrar o campo de data ao clicar em "VER REGISTROS"
     };
     // Atualiza a visibilidade do botão "GERAR RELATÓRIO" ao editar o nome do Team Leader
     useEffect(() => {
@@ -203,7 +219,8 @@ const RelatorioEUpdate = () => {
             setButtonLabel("ATUALIZAR DADOS"); // Altera o nome do botão ao visualizar registros
         }
     }, [searchNome, viewOnly]);
-    
+
+
     return (
         <>
             <Helmet>
@@ -220,8 +237,12 @@ const RelatorioEUpdate = () => {
                         <label htmlFor="RETL">RE:</label>
                         <input type="text" id="RETL" value={searchRE} onChange={(e) => setSearchRE(e.target.value)} placeholder="Digite seu RE" />
 
-                        <label htmlFor="data">Data do relatório:</label>
-                        <input type="date" id="data" value={searchData} onChange={(e) => setSearchData(e.target.value)} />
+                        {showDateField && ( // Exibir o campo de data somente se showDateField for true
+                            <>
+                                <label htmlFor="data">Data do relatório:</label>
+                                <input type="date" id="data" value={searchData} onChange={(e) => setSearchData(e.target.value)} />
+                            </>
+                        )}
 
                         {showGenerateButton && ( // Exibe o botão "GERAR RELATÓRIO" apenas se o relatório ainda não foi gerado
                             <button onClick={handleGenerateReport}>{buttonLabel}</button>
@@ -279,7 +300,7 @@ const RelatorioEUpdate = () => {
                                                 <td>{representante.Presenca}</td>
                                                 <td>
                                                     {viewOnly ? (
-                                                        representante.Justificativa || "Sem justificativa"
+                                                        representante.Justificativa || " "
                                                     ) : (
                                                         <select value={pendingChanges[representante.RepresentanteId]?.Presenca || representante.Presenca} onChange={(e) => handleStatusChange(representante.RepresentanteId, e.target.value)}>
                                                             <option value="">Selecione</option>
