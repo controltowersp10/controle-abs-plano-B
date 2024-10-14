@@ -294,7 +294,6 @@ const RelatorioEUpdate = () => {
                                                             <option value="Treinamento-Int">Treinamento Int</option>
                                                             <option value="Treinamento-REP-III">Treinamento REP III</option>
                                                             <option value="Sinergia-Insumo">Sinergia Insumo</option>
-                                                            <option value="Sinergia-Insumo">Sinergia Insumo</option>
                                                         </select>
                                                     )}
                                                 </td>
