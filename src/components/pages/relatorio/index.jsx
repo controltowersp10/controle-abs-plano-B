@@ -176,13 +176,18 @@ const RelatorioEUpdate = () => {
         fetchData();
     };
 
-    const capitalizeName = (name) => {
-        return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
+    const capitalizeName = (name) => { {/* isso passa os dados do parametro nome para caixa alta (MAIUSCULO) */}
+        return name.toUpperCase();
     };
     const formatDate = (dateString) => {
-        const date = new Date(dateString);
-        return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+        const date = new Date(dateString + "T00:00:00"); // Garantir que a hora seja meia-noite para evitar ajustes indesejados
+        return date.toLocaleDateString('pt-BR', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        });
     };
+    ;
 
     return (
         <>
@@ -214,7 +219,7 @@ const RelatorioEUpdate = () => {
 
                     {reportGenerated && (
                         <>
-                            <h2>Olá {capitalizeName(searchNome)},&nbsp; Aqui está o relatório <span>ABS</span> da sua equipe <span>!</span></h2>
+                            <h2>Olá <span>{capitalizeName(searchNome)}</span>,&nbsp; Aqui está o relatório <span>ABS</span> da sua equipe <span>!</span></h2>
                             <div className="container-tabela">
                                 <table>
                                     <thead>
