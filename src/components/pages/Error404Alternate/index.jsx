@@ -2,7 +2,7 @@ import Styles from './Error404A.module.css'
 import { Helmet } from "react-helmet"
 import { Link } from "react-router-dom"
 import img from "../../../assets/img/error1.svg"
-import logo from "../../../assets/img/logoABS.png"
+import logo from "../../../assets/img/ControlABS.png"
 
 const Error404Alternate = () => {
     alert("Esta página não existe!\n Volte a pagina inicial e tente novamente !");
