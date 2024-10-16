@@ -8,89 +8,80 @@ import SideBar from '../../SideBar';
 import Footer from '../../Footer';
 
 const RelatorioEUpdate = () => {
-    const [representanteArray, setRepresentanteArray] = useState([]);
+    const [RepresentantesArray, setRepresentantesArray] = useState([]);
     const [filteredData, setFilteredData] = useState([]);
     const [searchNome, setSearchNome] = useState("");
     const [searchRE, setSearchRE] = useState("");
     const [searchData, setSearchData] = useState("");
-    const [showDateField, setShowDateField] = useState(false); // Novo estado para controlar a visibilidade do campo de data
+    const [showDateField, setShowDateField] = useState(false);
     const [reportGenerated, setReportGenerated] = useState(false);
     const [viewOnly, setViewOnly] = useState(false);
     const [pendingChanges, setPendingChanges] = useState({});
     const [buttonLabel, setButtonLabel] = useState("GERAR RELATÓRIO");
-    const [showGenerateButton, setShowGenerateButton] = useState(true); // Estado para controlar a visibilidade do botão "GERAR RELATÓRIO"
+    const [showGenerateButton, setShowGenerateButton] = useState(true);
 
-        // Função para obter a data atual formatada como 'YYYY-MM-DD'
-        const getCurrentDate = () => {
-            const today = new Date();
-            const year = today.getFullYear();
-            const month = String(today.getMonth() + 1).padStart(2, '0'); // Adiciona o zero à esquerda
-            const day = String(today.getDate()).padStart(2, '0'); // Adiciona o zero à esquerda
-            return `${year}-${month}-${day}`;
-        };
-        useEffect(() => {
-            // Definir a data atual quando o componente for montado
-            const currentDate = getCurrentDate();
-            setSearchData(currentDate); // Define a data atual como o valor inicial
-        }, []);
+    const getCurrentDate = () => {
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    };
+
+    useEffect(() => {
+        const currentDate = getCurrentDate();
+        setSearchData(currentDate);
+    }, []);
 
     const fetchData = async () => {
         try {
-            const db = getDatabase(app);// Obtém a instância do banco de dados Firebase
-            const dbRef = ref(db, "Chamada/Representante");// Cria uma referência para a coleção "Chamada/Representante" no banco de dados
-            const snapshot = await get(dbRef); // Faz uma solicitação para obter os dados dessa referência
-        
-            // Verifica se os dados existem na referência
+            const db = getDatabase(app);
+            const dbRef = ref(db, "Chamada/Representante/Representantes");
+            const snapshot = await get(dbRef);
+
             if (snapshot.exists()) {
-                const myData = snapshot.val();// Obtém os dados como um objeto
-                // Converte o objeto em um array, adicionando o ID do representante como uma nova propriedade
+                const myData = snapshot.val();
                 const temporaryArray = Object.keys(myData).map(myFireid => ({
                     ...myData[myFireid],
-                    RepresentanteId: myFireid // Adiciona o ID do representante ao objeto
+                    RepresentantesId: myFireid
                 }));
-                // Verifica se uma data de busca foi fornecida
+
                 if (searchData) {
-                    
-                    const historicoRef = ref(db, `Historico/Chamada/${searchData}`);// Cria uma referência para os dados históricos da data especificada
-                    const historicoSnapshot = await get(historicoRef); // Obtém os dados históricos
+                    const historicoRef = ref(db, `Historico/Chamada/${searchData}`);
+                    const historicoSnapshot = await get(historicoRef);
                     let historicoData = [];
 
-                    if (historicoSnapshot.exists()) {// Verifica se os dados históricos existem
-                        
-                        historicoData = historicoSnapshot.val();// Obtém os dados históricos como um objeto
-                        // Converte o objeto de dados históricos em um array, adicionando o ID do histórico e a data
+                    if (historicoSnapshot.exists()) {
+                        historicoData = historicoSnapshot.val();
                         historicoData = Object.keys(historicoData).map(historicoId => ({
                             ...historicoData[historicoId],
-                            RepresentanteId: historicoId, // Adiciona o ID do histórico ao objeto
-                            DATA: searchData // Adiciona a data ao objeto
+                            RepresentantesId: historicoId,
+                            DATA: searchData
                         }));
                     }
-        
-                    // Combina os dados dos representantes com os dados históricos
+
                     const combinedData = temporaryArray.map(item => {
-                        // Encontra o item de histórico correspondente ao representante
-                        const historicoItem = historicoData.find(h => h.RepresentanteId === item.RepresentanteId) || {};
+                        const historicoItem = historicoData.find(h => h.RepresentantesId === item.RepresentantesId) || {};
                         return {
                             ...item,
-                            // Adiciona os dados de presença e justificativa, se existirem, caso contrário, define como vazio
                             Presenca: historicoItem.Presenca || "",
                             Justificativa: historicoItem.Justificativa || ""
                         };
                     });
-                    setRepresentanteArray(combinedData);// Atualiza o estado do componente com os dados combinados
-                    applyFilters(combinedData);// Aplica os filtros aos dados combinados
+
+                    setRepresentantesArray(combinedData);
+                    applyFilters(combinedData);
                 } else {
-                    setRepresentanteArray(temporaryArray); // Se não houver data de busca, simplesmente atualiza o estado com os dados temporários
-                    applyFilters(temporaryArray);// Aplica os filtros aos dados temporários
+                    setRepresentantesArray(temporaryArray);
+                    applyFilters(temporaryArray);
                 }
             } else {
-                alert("Nenhum dado disponível");// Se não houver dados disponíveis, exibe um alerta
+                alert("Nenhum dado disponível");
             }
         } catch (error) {
-            // Captura e exibe erros, caso ocorra uma falha na busca dos dados
             console.error("Erro ao buscar dados:", error);
             alert("Erro ao buscar dados. Tente novamente mais tarde.");
-        }        
+        }
     };
 
     const applyFilters = (data) => {
@@ -112,35 +103,35 @@ const RelatorioEUpdate = () => {
 
         setFilteredData(filtered);
         setReportGenerated(true);
-        setShowGenerateButton(false); // Oculta o botão "GERAR RELATÓRIO" após a geração
+        setShowGenerateButton(false);
     };
 
     const handleGenerateReport = async () => {
         await fetchData();
-        setViewOnly(false); // Garante que estamos no modo de edição após gerar o relatório
-        setPendingChanges({}); // Reseta as mudanças pendentes ao gerar o relatório
-        setButtonLabel("GERAR RELATÓRIO"); // Volta o nome do botão ao original
-        setShowGenerateButton(false); // Esconde o botão "GERAR RELATÓRIO"
+        setViewOnly(false);
+        setPendingChanges({});
+        setButtonLabel("GERAR RELATÓRIO");
+        setShowGenerateButton(false);
     };
 
 
-    const handleStatusChange = (representanteId, newStatus) => {
+    const handleStatusChange = (RepresentantesId, newStatus) => {
         setPendingChanges(prev => ({
             ...prev,
-            [representanteId]: {
-                ...prev[representanteId],
+            [RepresentantesId]: {
+                ...prev[RepresentantesId],
                 Presenca: newStatus
             }
         }));
     };
 
-    const addJustificativa = (representanteId) => {
+    const addJustificativa = (RepresentantesId) => {
         const justificativa = prompt("Por favor, insira a justificativa:");
         if (justificativa) {
             setPendingChanges(prev => ({
                 ...prev,
-                [representanteId]: {
-                    ...prev[representanteId],
+                [RepresentantesId]: {
+                    ...prev[RepresentantesId],
                     Justificativa: justificativa
                 }
             }));
@@ -152,37 +143,37 @@ const RelatorioEUpdate = () => {
     const handleSave = async () => {
         const db = getDatabase(app);
 
-        for (const representanteId in pendingChanges) {
-            const representanteData = pendingChanges[representanteId];
-            const representanteOriginal = representanteArray.find(item => item.RepresentanteId === representanteId);
+        for (const RepresentantesId in pendingChanges) {
+            const RepresentantesData = pendingChanges[RepresentantesId];
+            const RepresentantesOriginal = RepresentantesArray.find(item => item.RepresentantesId === RepresentantesId);
 
-            const fullRepresentanteData = {
-                ID_Groot: representanteOriginal.ID_Groot || "",
-                Nome: representanteOriginal.Nome || "",
-                Matricula: representanteOriginal.Matricula || "",
-                Turno: representanteOriginal.Turno || "",
-                Escala_Padrao: representanteOriginal.Escala_Padrao || "",
-                Cargo_Padrao: representanteOriginal.Cargo_Padrao || "",
-                Area_Padrao: representanteOriginal.Area_Padrao || "",
-                Empresa: representanteOriginal.Empresa || "",
-                Status: representanteOriginal.Status || "",
-                Turma: representanteOriginal.Turma || "",
-                DATA: representanteOriginal.DATA || "",
-                Presenca: representanteData.Presenca || representanteOriginal.Presenca || "",
-                Justificativa: representanteData.Justificativa || representanteOriginal.Justificativa || ""
+            const fullRepresentantesData = {
+                ID_Groot: RepresentantesOriginal.ID_Groot || "",
+                Nome: RepresentantesOriginal.Nome || "",
+                Matricula: RepresentantesOriginal.Matricula || "",
+                Turno: RepresentantesOriginal.Turno || "",
+                Escala_Padrao: RepresentantesOriginal.Escala_Padrao || "",
+                Cargo_Padrao: RepresentantesOriginal.Cargo_Padrao || "",
+                Area_Padrao: RepresentantesOriginal.Area_Padrao || "",
+                Empresa: RepresentantesOriginal.Empresa || "",
+                Status: RepresentantesOriginal.Status || "",
+                Turma: RepresentantesOriginal.Turma || "",
+                DATA: RepresentantesOriginal.DATA || "",
+                Presenca: RepresentantesData.Presenca || RepresentantesOriginal.Presenca || "",
+                Justificativa: RepresentantesData.Justificativa || RepresentantesOriginal.Justificativa || ""
             };
 
-            const dbRef = ref(db, `Historico/Chamada/${fullRepresentanteData.DATA}/${representanteId}`);
+            const dbRef = ref(db, `Historico/Chamada/${fullRepresentantesData.DATA}/${RepresentantesId}`);
             const snapshot = await get(dbRef);
 
             if (snapshot.exists()) {
                 const updatedData = {
                     ...snapshot.val(),
-                    ...fullRepresentanteData
+                    ...fullRepresentantesData
                 };
                 await set(dbRef, updatedData);
             } else {
-                await set(dbRef, fullRepresentanteData);
+                await set(dbRef, fullRepresentantesData);
             }
         }
 
@@ -230,7 +221,7 @@ const RelatorioEUpdate = () => {
             <SideBar />
             <main>
                 <div className="container-main">
-                    <div className="campo-de-pesquisa">
+                <div className="campo-de-pesquisa">
                         <label htmlFor="NomeTL">Nome:</label>
                         <input type="text" id="NomeTL" value={searchNome} onChange={(e) => setSearchNome(e.target.value)} placeholder="Digite seu nome" />
 
@@ -259,10 +250,11 @@ const RelatorioEUpdate = () => {
 
                         
                     </div>
-
                     {reportGenerated && (
                         <>
-                            <h2>Olá <span>{capitalizeName(searchNome)}</span>,&nbsp; Aqui está o relatório <span>ABS</span> da data <span>{formatDate(searchData)}</span> !</h2>
+                            <h2>
+                                Olá <span>{capitalizeName(searchNome)}</span>, Aqui está o relatório <span>ABS</span> da data <span>{formatDate(searchData)}</span>!
+                            </h2>
                             <div className="container-tabela">
                                 <table>
                                     <thead>
@@ -279,77 +271,41 @@ const RelatorioEUpdate = () => {
                                             <th>Turma</th>
                                             <th>Data</th>
                                             <th>Presença</th>
-                                            {!viewOnly && <th>Validação</th>} {/* Exibe somente se não estiver em modo de visualização */}
+                                            {!viewOnly && <th>Validação</th>}
                                             <th>Justificativa</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {filteredData.map((representante, index) => (
+                                        {filteredData.map((Representantes, index) => (
                                             <tr key={index}>
-                                                <td>{representante.ID_Groot}</td>
-                                                <td>{capitalizeName(representante.Nome)}</td>
-                                                <td>{representante.Matricula}</td>
-                                                <td>{representante.Turno}</td>
-                                                <td>{representante.Escala_Padrao}</td>
-                                                <td>{representante.Cargo_Padrao}</td>
-                                                <td>{representante.Area_Padrao}</td>
-                                                <td>{representante.Empresa}</td>
-                                                <td>{representante.Status}</td>
-                                                <td>{representante.Turma}</td>
-                                                <td>{formatDate(representante.DATA)}</td>
-                                                <td>{representante.Presenca}</td>
+                                                <td>{Representantes.ID_Groot}</td>
+                                                <td>{capitalizeName(Representantes.Nome)}</td>
+                                                <td>{Representantes.RE}</td>
+                                                <td>{Representantes.Turno}</td>
+                                                <td>{Representantes.Escala_Padrao}</td>
+                                                <td>{Representantes.Cargo_Padrao}</td>
+                                                <td>{Representantes.Area_Padrao}</td>
+                                                <td>{Representantes.Empresa}</td>
+                                                <td>{Representantes.Status}</td>
+                                                <td>{Representantes.Turma}</td>
+                                                <td>{formatDate(Representantes.DATA)}</td>
+                                                <td>{Representantes.Presenca}</td>
                                                 <td>
                                                     {viewOnly ? (
-                                                        representante.Justificativa || " "
+                                                        Representantes.Justificativa || " "
                                                     ) : (
-                                                        <select value={pendingChanges[representante.RepresentanteId]?.Presenca || representante.Presenca} onChange={(e) => handleStatusChange(representante.RepresentanteId, e.target.value)}>
+                                                        <select value={pendingChanges[Representantes.RepresentantesId]?.Presenca || Representantes.Presenca} onChange={(e) => handleStatusChange(Representantes.RepresentantesId, e.target.value)}>
                                                             <option value="">Selecione</option>
                                                             <option value="Presente">Presente</option>
-                                                            <option value="Afastamento">Afastamento</option>
-                                                            <option value="Afastamento-Acd-Trab">Afastamento Acd Trabalho</option>
-                                                            <option value="Atestado">Atestado</option>
-                                                            <option value="Atestado-Acd-Trab">Atestado Acd Trabalho</option>
-                                                            <option value="Atestado-Horas">Atestado Horas</option>
-                                                            <option value="Banco-de-Horas">Banco de Horas</option>
-                                                            <option value="Decl-Medica">Declaração Médica</option>
-                                                            <option value="Falta">Falta</option>
-                                                            <option value="Ferias">Férias</option>
-                                                            <option value="Folga-Escala">Folga Escala</option>
-                                                            <option value="Fretado">Fretado</option>
-                                                            <option value="Licenca">Licença</option>
-                                                            <option value="Presenca-HE">Presença (HE)</option>
-                                                            <option value="Sinergia-CX">Sinergia CX</option>
-                                                            <option value="Sinergia-IN">Sinergia IN</option>
-                                                            <option value="Sinergia-INV">Sinergia INV</option>
-                                                            <option value="Sinergia-Loss">Sinergia Loss</option>
-                                                            <option value="Sinergia-MWH">Sinergia MWH</option>
-                                                            <option value="Sinergia-OUT">Sinergia OUT</option>
-                                                            <option value="Sinergia-Qua">Sinergia Qua</option>
-                                                            <option value="Sinergia-RC01">Sinergia RC01</option>
-                                                            <option value="Sinergia-RC-SP10">Sinergia RC-SP10</option>
-                                                            <option value="Sinergia-RET">Sinergia RET</option>
-                                                            <option value="Sinergia-SP01">Sinergia SP01</option>
-                                                            <option value="Sinergia-SP02">Sinergia SP02</option>
-                                                            <option value="Sinergia-SP03">Sinergia SP03</option>
-                                                            <option value="Sinergia-SP04">Sinergia SP04</option>
-                                                            <option value="Sinergia-SP05">Sinergia SP05</option>
-                                                            <option value="Sinergia-SP06">Sinergia SP06</option>
-                                                            <option value="Sinergia-Sortation">Sinergia Sortation</option>
-                                                            <option value="Sinergia-Suspensao">Sinergia Suspensão</option>
-                                                            <option value="Sinergia-SVC">Sinergia SVC</option>
-                                                            <option value="Transferido">Transferido</option>
-                                                            <option value="Treinamento-Ext">Treinamento Ext</option>
-                                                            <option value="Treinamento-Int">Treinamento Int</option>
-                                                            <option value="Treinamento-REP-III">Treinamento REP III</option>
-                                                            <option value="Sinergia-Insumo">Sinergia Insumo</option>
+                                                            {/* Outras opções */}
                                                         </select>
                                                     )}
                                                 </td>
                                                 {!viewOnly && (
                                                     <td>
-                                                        <button onClick={() => addJustificativa(representante.RepresentanteId)}>Adicionar Justificativa</button>
+                                                        <button onClick={() => addJustificativa(Representantes.RepresentantesId)}>Adicionar Justificativa</button>
                                                     </td>
-                                                )} 
+                                                )}
                                             </tr>
                                         ))}
                                     </tbody>
@@ -362,6 +318,7 @@ const RelatorioEUpdate = () => {
             <Footer />
         </>
     );
+    
 };
 
 export default RelatorioEUpdate;
