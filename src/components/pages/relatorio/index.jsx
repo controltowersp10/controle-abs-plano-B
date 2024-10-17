@@ -84,26 +84,34 @@ const RelatorioEUpdate = () => {
     };
 
     const applyFilters = (data) => {
+        console.log("Applying filters...", data);
+        
+        // Verifique se o nome e a data foram preenchidos
         if (!searchNome.trim()) {
             alert("Por favor, preencha o nome do Team Leader.");
             return;
         }
-
+    
         if (!searchData.trim()) {
             alert("Por favor, selecione uma data.");
             return;
         }
-
+    
+        // Filtrando os dados
         const filtered = data.filter(item => {
             const isNomeMatch = item.Team_Leader && item.Team_Leader.toLowerCase().includes(searchNome.toLowerCase());
             const isDataMatch = item.DATA === searchData;
-            return isNomeMatch && isDataMatch;
+            const isPresencaNaoPresente = item.Presenca_sistemica === "Não Presente"; // Verificando se a presença é "Não presente"
+            return isNomeMatch && isDataMatch && isPresencaNaoPresente;
         });
-
+    
+        console.log("Filtered data:", filtered);
+    
         setFilteredData(filtered);
         setReportGenerated(true);
         setShowGenerateButton(false);
     };
+    
 
     const handleGenerateReport = async () => {
         await fetchData();
@@ -119,34 +127,18 @@ const RelatorioEUpdate = () => {
             ...prev,
             [RepresentantesId]: {
                 ...prev[RepresentantesId],
-                Presenca_sistemica: newStatus // Certifique-se de atualizar "Presenca_sistemica"
+                Presenca_sistemica: newStatus
             }
         }));
     };
     
-
-    const addJustificativa = (RepresentantesId) => {
-        const justificativa = prompt("Por favor, insira a justificativa:");
-        if (justificativa) {
-            setPendingChanges(prev => ({
-                ...prev,
-                [RepresentantesId]: {
-                    ...prev[RepresentantesId],
-                    Justificativa: justificativa
-                }
-            }));
-        } else {
-            alert("Nenhuma justificativa inserida!");
-        }
-    };
-
     const handleSave = async () => {
         const db = getDatabase(app);
         
         for (const RepresentantesId in pendingChanges) {
             const RepresentantesData = pendingChanges[RepresentantesId];
             const RepresentantesOriginal = RepresentantesArray.find(item => item.RepresentantesId === RepresentantesId);
-        
+            
             const fullRepresentantesData = {
                 ID_Groot: RepresentantesOriginal.ID_Groot || "",
                 Nome: RepresentantesOriginal.Nome || "",
@@ -164,21 +156,30 @@ const RelatorioEUpdate = () => {
             };
     
             const dbRef = ref(db, `Historico/Chamada/${fullRepresentantesData.DATA}/${RepresentantesId}`);
-            const snapshot = await get(dbRef);
-        
-            if (snapshot.exists()) {
-                await set(dbRef, { ...snapshot.val(), ...fullRepresentantesData });
-            } else {
-                await set(dbRef, fullRepresentantesData);
-            }
+            await set(dbRef, fullRepresentantesData);
         }
         
         alert("Alterações salvas com sucesso!");
         setPendingChanges({});
-        await fetchData(); // Recarrega os dados imediatamente após salvar
+        await fetchData(); // Recarregar os dados
     };
-    
-    
+     
+
+    const addJustificativa = (RepresentantesId) => {
+        const justificativa = prompt("Por favor, insira a justificativa:");
+        if (justificativa) {
+            setPendingChanges(prev => ({
+                ...prev,
+                [RepresentantesId]: {
+                    ...prev[RepresentantesId],
+                    Justificativa: justificativa
+                }
+            }));
+        } else {
+            alert("Nenhuma justificativa inserida!");
+        }
+    };
+
 
     const capitalizeName = (name) => { 
         return name.toUpperCase();
@@ -268,7 +269,7 @@ const RelatorioEUpdate = () => {
                                             <th>Status</th>
                                             <th>Turma</th>
                                             <th>Data</th>
-                                            <th>Presença</th>
+                                            <th className="presensa-sistemica">Presença</th>
                                             {!viewOnly && <th>Validação</th>}
                                             <th>Justificativa</th>
                                         </tr>
@@ -287,7 +288,7 @@ const RelatorioEUpdate = () => {
                                                 <td>{Representantes.Status}</td>
                                                 <td>{Representantes.Turma}</td>
                                                 <td>{formatDate(Representantes.DATA)}</td>
-                                                <td>{Representantes.Presenca_sistemica}</td>
+                                                <td className="presensa-sistemica">{Representantes.Presenca_sistemica}</td>
                                                 <td>
                                                     {viewOnly ? (
                                                         Representantes.Justificativa || " "
