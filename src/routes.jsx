@@ -17,8 +17,8 @@ const RoutesApp = () => {
         <BrowserRouter>
             <Routes> 
                 <Route path="*" element={random404}/>
-                <Route path="/" element={<Home/>}/>
-                <Route path="/relatorio" element={<Relatorio/>}/>
+                <Route path="/home" element={<Home/>}/>
+                <Route path="/" element={<Relatorio/>}/>
                 <Route path="/sobre" element={<Sobre/>}/>
                 <Route path="/write" element={<Write/>}/>
                 <Route path="/read" element={<Read/>}/>

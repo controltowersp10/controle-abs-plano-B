@@ -1,8 +1,7 @@
 main {
     padding: 20px;
     margin-top: 2rem;
-    margin-left: 190px;
-    width: calc(100% - 210px);
+    width: 100%;
     box-sizing: border-box;
     min-height: 100vh;
  }
@@ -31,9 +30,7 @@ main {
  
  /* Estilo do parágrafo */
  .container-main p {
-    width: 70%;
-    float: right;
-    margin-right: 8%;
+    width: 80%;
     font-size: 18px; /* Ajuste do tamanho da fonte */
     line-height: 1.6; /* Espaçamento entre linhas para melhorar a legibilidade */
     text-align: justify; /* Alinha o texto de forma justificada */

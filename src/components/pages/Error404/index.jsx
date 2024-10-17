@@ -2,7 +2,7 @@
 import { Helmet } from "react-helmet"
 import { Link } from "react-router-dom"
 import Styles from "./Page404.module.css"
-import logo from "../../../assets/img/logoABS.png"
+import logo from "../../../assets/img/ControlABS.png"
 
 const Error404 = () => {
     alert("Esta página não existe!\nVolte a pagina inicial e tente novamente !");
@@ -12,7 +12,7 @@ const Error404 = () => {
                 <title>404 || Page Not Found !</title>
             </Helmet>
             <header className={Styles.header}>
-                <Link to="/"><img src={logo} alt="imagemLogo"className={Styles.imagemLogo}/></Link>
+                <Link to="/home"><img src={logo} alt="imagemLogo"className={Styles.imagemLogo}/></Link>
             </header>
             <section className={Styles.information_404}>
                  <div className={Styles.information_container_404}>
