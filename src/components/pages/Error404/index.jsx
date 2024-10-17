@@ -12,7 +12,7 @@ const Error404 = () => {
                 <title>404 || Page Not Found !</title>
             </Helmet>
             <header className={Styles.header}>
-                <Link to="/"><img src={logo} alt="imagemLogo"className={Styles.imagemLogo}/></Link>
+                <Link to="/home"><img src={logo} alt="imagemLogo"className={Styles.imagemLogo}/></Link>
             </header>
             <section className={Styles.information_404}>
                  <div className={Styles.information_container_404}>

@@ -7,8 +7,8 @@ const SideBar = () => {
             <div className="side-bar">
                 <div className="container-side">
                     <ul>
-                        <li><Link to="/">Home</Link></li>
-                        <li><Link to="/relatorio">Controle ABS</Link></li>
+                        <li><Link to="/home">Home</Link></li>
+                        <li><Link to="/">Controle ABS</Link></li>
                         <li><Link to="/DashABS">Dashboard ABS</Link></li>
                     </ul>
                 </div>
