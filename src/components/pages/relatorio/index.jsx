@@ -119,10 +119,11 @@ const RelatorioEUpdate = () => {
             ...prev,
             [RepresentantesId]: {
                 ...prev[RepresentantesId],
-                Presenca: newStatus
+                Presenca_sistemica: newStatus // Certifique-se de atualizar "Presenca_sistemica"
             }
         }));
     };
+    
 
     const addJustificativa = (RepresentantesId) => {
         const justificativa = prompt("Por favor, insira a justificativa:");
@@ -141,11 +142,11 @@ const RelatorioEUpdate = () => {
 
     const handleSave = async () => {
         const db = getDatabase(app);
-
+        
         for (const RepresentantesId in pendingChanges) {
             const RepresentantesData = pendingChanges[RepresentantesId];
             const RepresentantesOriginal = RepresentantesArray.find(item => item.RepresentantesId === RepresentantesId);
-
+        
             const fullRepresentantesData = {
                 ID_Groot: RepresentantesOriginal.ID_Groot || "",
                 Nome: RepresentantesOriginal.Nome || "",
@@ -158,28 +159,26 @@ const RelatorioEUpdate = () => {
                 Status: RepresentantesOriginal.Status || "",
                 Turma: RepresentantesOriginal.Turma || "",
                 DATA: RepresentantesOriginal.DATA || "",
-                Presenca: RepresentantesData.Presenca || RepresentantesOriginal.Presenca || "",
+                Presenca_sistemica: RepresentantesData.Presenca_sistemica || RepresentantesOriginal.Presenca_sistemica || "",
                 Justificativa: RepresentantesData.Justificativa || RepresentantesOriginal.Justificativa || ""
             };
-
+    
             const dbRef = ref(db, `Historico/Chamada/${fullRepresentantesData.DATA}/${RepresentantesId}`);
             const snapshot = await get(dbRef);
-
+        
             if (snapshot.exists()) {
-                const updatedData = {
-                    ...snapshot.val(),
-                    ...fullRepresentantesData
-                };
-                await set(dbRef, updatedData);
+                await set(dbRef, { ...snapshot.val(), ...fullRepresentantesData });
             } else {
                 await set(dbRef, fullRepresentantesData);
             }
         }
-
+        
         alert("Alterações salvas com sucesso!");
         setPendingChanges({});
-        fetchData();
+        await fetchData(); // Recarrega os dados imediatamente após salvar
     };
+    
+    
 
     const capitalizeName = (name) => { 
         return name.toUpperCase();
@@ -288,12 +287,12 @@ const RelatorioEUpdate = () => {
                                                 <td>{Representantes.Status}</td>
                                                 <td>{Representantes.Turma}</td>
                                                 <td>{formatDate(Representantes.DATA)}</td>
-                                                <td>{Representantes.Presenca}</td>
+                                                <td>{Representantes.Presenca_sistemica}</td>
                                                 <td>
                                                     {viewOnly ? (
                                                         Representantes.Justificativa || " "
                                                     ) : (
-                                                        <select value={pendingChanges[Representantes.RepresentantesId]?.Presenca || Representantes.Presenca} onChange={(e) => handleStatusChange(Representantes.RepresentantesId, e.target.value)}>
+                                                        <select value={pendingChanges[Representantes.RepresentantesId]?.Presenca_sistemica || Representantes.Presenca_sistemica} onChange={(e) => handleStatusChange(Representantes.RepresentantesId, e.target.value)}>
                                                             <option value="">Selecione</option>
                                                             <option value="Presente">Presente</option>
                                                             <option value="Afastamento">Afastamento</option>
@@ -336,6 +335,7 @@ const RelatorioEUpdate = () => {
                                                         </select>
                                                     )}
                                                 </td>
+
                                                 {!viewOnly && (
                                                     <td>
                                                         <button onClick={() => addJustificativa(Representantes.RepresentantesId)}>Adicionar Justificativa</button>
