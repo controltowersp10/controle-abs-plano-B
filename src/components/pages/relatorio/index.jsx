@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+//teste copia 
+import React, { useState, useEffect } from "react"
 import { Helmet } from "react-helmet";
 import app from "../../../firebaseConfig.jsx";
 import { getDatabase, ref, get, set } from "firebase/database";
