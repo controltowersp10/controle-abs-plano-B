@@ -6,18 +6,10 @@ import '../../../estilo.css';
 import Navbar from '../../Navbar';
 import Footer from '../../Footer';
 
-const formatDate = (dateString) => {
-    const date = new Date(dateString + "T00:00:00");
-    return date.toLocaleDateString('pt-BR', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric'
-    });
-};
-
 const RelatorioEUpdate = () => {
-    const [representantesArray, setRepresentantesArray] = useState([]);
+    const [RepresentantesArray, setRepresentantesArray] = useState([]);
     const [filteredData, setFilteredData] = useState([]);
+    const [searchNome, setSearchNome] = useState("");
     const [searchRE, setSearchRE] = useState("");
     const [searchData, setSearchData] = useState("");
     const [showDateField, setShowDateField] = useState(false);
@@ -26,20 +18,18 @@ const RelatorioEUpdate = () => {
     const [pendingChanges, setPendingChanges] = useState({});
     const [buttonLabel, setButtonLabel] = useState("GERAR RELATÓRIO");
     const [showGenerateButton, setShowGenerateButton] = useState(true);
-    const [error, setError] = useState(null);
 
     const getCurrentDate = () => {
         const today = new Date();
-        return today.toISOString().split("T")[0];
-    };
-
-    const getTeamLeaderByRE = (re) => {
-        const representante = representantesArray.find(item => item.RE_TL === re);
-        return representante ? representante.Team_Leader : "";
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
     };
 
     useEffect(() => {
-        setSearchData(getCurrentDate());
+        const currentDate = getCurrentDate();
+        setSearchData(currentDate);
     }, []);
 
     const fetchData = async () => {
@@ -48,71 +38,80 @@ const RelatorioEUpdate = () => {
             const dbRef = ref(db, "Chamada/Representante/Representantes");
             const snapshot = await get(dbRef);
 
-            if (!snapshot.exists()) {
-                setError("Nenhum dado disponível.");
-                return;
-            }
+            if (snapshot.exists()) {
+                const myData = snapshot.val();
+                const temporaryArray = Object.keys(myData).map(myFireid => ({
+                    ...myData[myFireid],
+                    RepresentantesId: myFireid
+                }));
 
-            const myData = snapshot.val();
-            const temporaryArray = Object.keys(myData).map(myFireid => ({
-                ...myData[myFireid],
-                RepresentantesId: myFireid
-            }));
+                if (searchData) {
+                    const historicoRef = ref(db, `Historico/Chamada/${searchData}`);
+                    const historicoSnapshot = await get(historicoRef);
+                    let historicoData = [];
 
-            if (searchData) {
-                const historicoRef = ref(db, `Historico/Chamada/${searchData}`);
-                const historicoSnapshot = await get(historicoRef);
-                let historicoData = [];
+                    if (historicoSnapshot.exists()) {
+                        historicoData = historicoSnapshot.val();
+                        historicoData = Object.keys(historicoData).map(historicoId => ({
+                            ...historicoData[historicoId],
+                            RepresentantesId: historicoId,
+                            DATA: searchData
+                        }));
+                    }
 
-                if (historicoSnapshot.exists()) {
-                    historicoData = historicoSnapshot.val();
-                    historicoData = Object.keys(historicoData).map(historicoId => ({
-                        ...historicoData[historicoId],
-                        RepresentantesId: historicoId,
-                        DATA: searchData
-                    }));
+                    const combinedData = temporaryArray.map(item => {
+                        const historicoItem = historicoData.find(h => h.RepresentantesId === item.RepresentantesId) || {};
+                        return {
+                            ...item,
+                            Presenca: historicoItem.Presenca || "",
+                            Justificativa: historicoItem.Justificativa || ""
+                        };
+                    });
+
+                    setRepresentantesArray(combinedData);
+                    applyFilters(combinedData);
+                } else {
+                    setRepresentantesArray(temporaryArray);
+                    applyFilters(temporaryArray);
                 }
-
-                const combinedData = temporaryArray.map(item => {
-                    const historicoItem = historicoData.find(h => h.RepresentantesId === item.RepresentantesId) || {};
-                    return {
-                        ...item,
-                        Presenca_sistemica: historicoItem.Presenca_sistemica || "",
-                        Justificativa: historicoItem.Justificativa || ""
-                    };
-                });
-
-                setRepresentantesArray(combinedData);
-                applyFilters(combinedData);
             } else {
-                setRepresentantesArray(temporaryArray);
-                applyFilters(temporaryArray);
+                alert("Nenhum dado disponível");
             }
         } catch (error) {
             console.error("Erro ao buscar dados:", error);
-            setError("Erro ao buscar dados. Tente novamente mais tarde.");
+            alert("Erro ao buscar dados. Tente novamente mais tarde.");
         }
     };
 
     const applyFilters = (data) => {
-        if (!searchRE.trim()) {
-            alert("Por favor, preencha o RE.");
+        console.log("Applying filters...", data);
+        
+        // Verifique se o nome e a data foram preenchidos
+        if (!searchNome.trim()) {
+            alert("Por favor, preencha o nome do Team Leader.");
             return;
         }
-
-        const representante = data.find(item => item.RE_TL === searchRE);
-        if (!representante) {
-            alert("RE não encontrado.");
+    
+        if (!searchData.trim()) {
+            alert("Por favor, selecione uma data.");
             return;
         }
-
-        const teamLeader = representante.Team_Leader;
-        const filtered = data.filter(item => item.Team_Leader === teamLeader && item.DATA === searchData);
-
+    
+        // Filtrando os dados
+        const filtered = data.filter(item => {
+            const isNomeMatch = item.Team_Leader && item.Team_Leader.toLowerCase().includes(searchNome.toLowerCase());
+            const isDataMatch = item.DATA === searchData;
+            const isPresencaNaoPresente = item.Presenca_sistemica === "Não Presente"; // Verificando se a presença é "Não presente"
+            return isNomeMatch && isDataMatch && isPresencaNaoPresente;
+        });
+    
+        console.log("Filtered data:", filtered);
+    
         setFilteredData(filtered);
         setReportGenerated(true);
         setShowGenerateButton(false);
     };
+    
 
     const handleGenerateReport = async () => {
         await fetchData();
@@ -121,6 +120,7 @@ const RelatorioEUpdate = () => {
         setButtonLabel("GERAR RELATÓRIO");
         setShowGenerateButton(false);
     };
+
 
     const handleStatusChange = (RepresentantesId, newStatus) => {
         setPendingChanges(prev => ({
@@ -131,28 +131,39 @@ const RelatorioEUpdate = () => {
             }
         }));
     };
-
+    
     const handleSave = async () => {
         const db = getDatabase(app);
         
         for (const RepresentantesId in pendingChanges) {
             const RepresentantesData = pendingChanges[RepresentantesId];
-            const RepresentantesOriginal = representantesArray.find(item => item.RepresentantesId === RepresentantesId);
-
+            const RepresentantesOriginal = RepresentantesArray.find(item => item.RepresentantesId === RepresentantesId);
+            
             const fullRepresentantesData = {
-                ...RepresentantesOriginal,
+                ID_Groot: RepresentantesOriginal.ID_Groot || "",
+                Nome: RepresentantesOriginal.Nome || "",
+                Matricula: RepresentantesOriginal.Matricula || "",
+                Turno: RepresentantesOriginal.Turno || "",
+                Escala_Padrao: RepresentantesOriginal.Escala_Padrao || "",
+                Cargo_Padrao: RepresentantesOriginal.Cargo_Padrao || "",
+                Area_Padrao: RepresentantesOriginal.Area_Padrao || "",
+                Empresa: RepresentantesOriginal.Empresa || "",
+                Status: RepresentantesOriginal.Status || "",
+                Turma: RepresentantesOriginal.Turma || "",
+                DATA: RepresentantesOriginal.DATA || "",
                 Presenca_sistemica: RepresentantesData.Presenca_sistemica || RepresentantesOriginal.Presenca_sistemica || "",
                 Justificativa: RepresentantesData.Justificativa || RepresentantesOriginal.Justificativa || ""
             };
-
+    
             const dbRef = ref(db, `Historico/Chamada/${fullRepresentantesData.DATA}/${RepresentantesId}`);
             await set(dbRef, fullRepresentantesData);
         }
         
         alert("Alterações salvas com sucesso!");
         setPendingChanges({});
-        await fetchData();
+        await fetchData(); // Recarregar os dados
     };
+     
 
     const addJustificativa = (RepresentantesId) => {
         const justificativa = prompt("Por favor, insira a justificativa:");
@@ -169,25 +180,36 @@ const RelatorioEUpdate = () => {
         }
     };
 
-    const handleViewRecords = () => {
-        fetchData();  // Recarregar dados
-        setViewOnly(true);  // Definir para visualização apenas
-        setButtonLabel("ATUALIZAR DADOS");  // Atualizar o botão para permitir edição
-        setShowGenerateButton(true);  // Mostrar botão de atualização
-        setShowDateField(true);  // Mostrar o campo de data
-    };
-    
 
+    const capitalizeName = (name) => { 
+        return name.toUpperCase();
+    };
+
+    const formatDate = (dateString) => {
+        const date = new Date(dateString + "T00:00:00");
+        return date.toLocaleDateString('pt-BR', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        });
+    };
+    const handleViewRecords = () => {
+        fetchData();
+        setViewOnly(true);
+        setButtonLabel("ATUALIZAR DADOS");
+        setShowGenerateButton(true);
+        setShowDateField(true); // Mostrar o campo de data ao clicar em "VER REGISTROS"
+    };
+    // Atualiza a visibilidade do botão "GERAR RELATÓRIO" ao editar o nome do Team Leader
     useEffect(() => {
-        if (searchRE.trim() && !viewOnly) {
+        if (searchNome.trim() && !viewOnly) {
             setShowGenerateButton(true);
-            setButtonLabel("GERAR RELATÓRIO");
+            setButtonLabel("GERAR RELATÓRIO"); // Reconfigura o botão para "GERAR RELATÓRIO" quando estiver em modo de edição
         } else if (viewOnly) {
-            setButtonLabel("ATUALIZAR DADOS");
+            setButtonLabel("ATUALIZAR DADOS"); // Altera o nome do botão ao visualizar registros
         }
-    }, [searchRE, viewOnly]);
-    
-    const capitalizeName = (name) => name.toUpperCase();
+    }, [searchNome, viewOnly]);
+
 
     return (
         <>
@@ -197,35 +219,40 @@ const RelatorioEUpdate = () => {
             <Navbar />
             <main>
                 <div className="container-main">
-                    {error && <div className="error-message">{error}</div>}
-                    <div className="campo-de-pesquisa">
+                <div className="campo-de-pesquisa">
+                    
+                        <label htmlFor="NomeTL">Nome:</label>
+                        <input type="text" id="NomeTL" value={searchNome} onChange={(e) => setSearchNome(e.target.value)} placeholder="Digite seu nome" />
+
                         <label htmlFor="RETL">RE:</label>
-                        <input type="text" id="RETL" value={searchRE} onChange={(e) => setSearchRE(e.target.value)} placeholder="Digite seu RE"/>
+                        <input type="text" id="RETL" value={searchRE} onChange={(e) => setSearchRE(e.target.value)} placeholder="Digite seu RE" />
 
-                        {showDateField && (
+                        {showDateField && ( // Exibir o campo de data somente se showDateField for true
                             <>
-                                <label htmlFor="data">DATA:</label>
-                                <input type="date" id="data" value={searchData} onChange={(e) => setSearchData(e.target.value)}/>
+                                <label htmlFor="data">Data do relatório:</label>
+                                <input type="date" id="data" value={searchData} onChange={(e) => setSearchData(e.target.value)} />
                             </>
                         )}
 
-                        {showGenerateButton && (
+                        {showGenerateButton && ( // Exibe o botão "GERAR RELATÓRIO" apenas se o relatório ainda não foi gerado
                             <button onClick={handleGenerateReport}>{buttonLabel}</button>
                         )}
-                        {reportGenerated && !viewOnly && (
-                            <>
-                                <button onClick={handleSave}>SALVAR</button>
-                                <button onClick={handleViewRecords}>VER REGISTROS</button>
-                            </>
+                        {reportGenerated && !viewOnly && ( // Exibe o botão "SALVAR" somente quando não está no modo de visualização
+                            <button onClick={handleSave}>SALVAR</button>
                         )}
-                        {viewOnly && (
+                        {reportGenerated && !viewOnly && ( // Exibe o botão "VER REGISTROS" quando não está no modo de visualização
+                            <button onClick={handleViewRecords}>VER REGISTROS</button>
+                        )}
+                        {viewOnly && ( // Exibe o botão "ATUALIZAR DADOS" quando está no modo de visualização
                             <button onClick={handleGenerateReport}>{buttonLabel}</button>
-                        )}
+                         )}
+
+                        
                     </div>
                     {reportGenerated && (
                         <>
                             <h2>
-                                Olá, <span>{capitalizeName(getTeamLeaderByRE(searchRE))}</span>, aqui está o relatório <span>ABS</span> da data <span>{formatDate(searchData)}</span>&nbsp;!
+                                Olá <span>{capitalizeName(searchNome)}</span>, Aqui está o relatório <span>ABS</span> da data <span>{formatDate(searchData)}</span>!
                             </h2>
                             <div className="container-tabela">
                                 <table>
@@ -235,41 +262,39 @@ const RelatorioEUpdate = () => {
                                             <th>Nome</th>
                                             <th>RE</th>
                                             <th>Turno</th>
-                                            <th>Escala Padrão</th>
-                                            <th>Cargo Padrão</th>
-                                            <th>Área Padrão</th>
+                                            <th>Escala</th>
+                                            <th>Cargo</th>
+                                            <th>Área</th>
                                             <th>Empresa</th>
-                                            <th>Turma</th>
                                             <th>Status</th>
+                                            <th>Turma</th>
                                             <th>Data</th>
-                                            <th className="presensa-sistemica">Presença Sistêmica</th>
-                                            <th>Validação</th>
+                                            <th className="presensa-sistemica">Presença</th>
+                                            {!viewOnly && <th>Validação</th>}
                                             <th>Justificativa</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {filteredData.map((item, index) => (
+                                        {filteredData.map((Representantes, index) => (
                                             <tr key={index}>
-                                                <td>{item.ID_Groot}</td>
-                                                <td>{capitalizeName(item.Nome)}</td>
-                                                <td>{item.Matricula}</td>
-                                                <td>{item.Turno}</td>
-                                                <td>{item.Escala_Padrao}</td>
-                                                <td>{item.Cargo_Padrao}</td>
-                                                <td>{item.Area_Padrao}</td>
-                                                <td>{item.Empresa}</td>
-                                                <td>{item.Turma}</td>
-                                                <td>{item.Status}</td>
-                                                <td>{formatDate(item.DATA)}</td>
-                                                <td className="presensa-sistemica">
-                                                    {pendingChanges[item.RepresentantesId]?.Presenca_sistemica !== undefined
-                                                        ? pendingChanges[item.RepresentantesId]?.Presenca_sistemica
-                                                        : item.Presenca_sistemica}
-                                                </td>
+                                                <td>{Representantes.ID_Groot}</td>
+                                                <td>{capitalizeName(Representantes.Nome)}</td>
+                                                <td>{Representantes.Matricula}</td>
+                                                <td>{Representantes.Turno}</td>
+                                                <td>{Representantes.Escala_Padrao}</td>
+                                                <td>{Representantes.Cargo_Padrao}</td>
+                                                <td>{Representantes.Area_Padrao}</td>
+                                                <td>{Representantes.Empresa}</td>
+                                                <td>{Representantes.Status}</td>
+                                                <td>{Representantes.Turma}</td>
+                                                <td>{formatDate(Representantes.DATA)}</td>
+                                                <td className="presensa-sistemica">{Representantes.Presenca_sistemica}</td>
                                                 <td>
-                                                    <select value={pendingChanges[item.RepresentantesId]?.Presenca_sistemica || ""}
-                                                        onChange={(e) => handleStatusChange(item.RepresentantesId, e.target.value)}>
-                                                         <option value="">Selecione</option>
+                                                    {viewOnly ? (
+                                                        Representantes.Justificativa || " "
+                                                    ) : (
+                                                        <select value={pendingChanges[Representantes.RepresentantesId]?.Presenca_sistemica || Representantes.Presenca_sistemica} onChange={(e) => handleStatusChange(Representantes.RepresentantesId, e.target.value)}>
+                                                            <option value="">Selecione</option>
                                                             <option value="Presente">Presente</option>
                                                             <option value="Afastamento">Afastamento</option>
                                                             <option value="Afastamento-Acd-Trab">Afastamento Acd Trabalho</option>
@@ -308,11 +333,13 @@ const RelatorioEUpdate = () => {
                                                             <option value="Treinamento-Int">Treinamento Int</option>
                                                             <option value="Treinamento-REP-III">Treinamento REP III</option>
                                                             <option value="Sinergia-Insumo">Sinergia Insumo</option>
-                                                    </select>
+                                                        </select>
+                                                    )}
                                                 </td>
+
                                                 {!viewOnly && (
                                                     <td>
-                                                        <button onClick={() => addJustificativa(item.RepresentantesId)}>Adicionar Justificativa</button>
+                                                        <button onClick={() => addJustificativa(Representantes.RepresentantesId)}>Adicionar Justificativa</button>
                                                     </td>
                                                 )}
                                             </tr>
@@ -327,6 +354,7 @@ const RelatorioEUpdate = () => {
             <Footer />
         </>
     );
+    
 };
 
 export default RelatorioEUpdate;
