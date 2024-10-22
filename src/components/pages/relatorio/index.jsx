@@ -170,12 +170,13 @@ const RelatorioEUpdate = () => {
     };
 
     const handleViewRecords = () => {
-        fetchData();
-        setViewOnly(true);
-        setButtonLabel("ATUALIZAR DADOS");
-        setShowGenerateButton(true);
-        setShowDateField(true);
+        fetchData();  // Recarregar dados
+        setViewOnly(true);  // Definir para visualização apenas
+        setButtonLabel("ATUALIZAR DADOS");  // Atualizar o botão para permitir edição
+        setShowGenerateButton(true);  // Mostrar botão de atualização
+        setShowDateField(true);  // Mostrar o campo de data
     };
+    
 
     useEffect(() => {
         if (searchRE.trim() && !viewOnly) {
@@ -199,23 +200,12 @@ const RelatorioEUpdate = () => {
                     {error && <div className="error-message">{error}</div>}
                     <div className="campo-de-pesquisa">
                         <label htmlFor="RETL">RE:</label>
-                        <input
-                            type="text"
-                            id="RETL"
-                            value={searchRE}
-                            onChange={(e) => setSearchRE(e.target.value)}
-                            placeholder="Digite seu RE"
-                        />
+                        <input type="text" id="RETL" value={searchRE} onChange={(e) => setSearchRE(e.target.value)} placeholder="Digite seu RE"/>
 
                         {showDateField && (
                             <>
-                                <label htmlFor="data">Data do relatório:</label>
-                                <input
-                                    type="date"
-                                    id="data"
-                                    value={searchData}
-                                    onChange={(e) => setSearchData(e.target.value)}
-                                />
+                                <label htmlFor="data">DATA:</label>
+                                <input type="date" id="data" value={searchData} onChange={(e) => setSearchData(e.target.value)}/>
                             </>
                         )}
 
@@ -235,7 +225,7 @@ const RelatorioEUpdate = () => {
                     {reportGenerated && (
                         <>
                             <h2>
-                                Olá, <span>{capitalizeName(getTeamLeaderByRE(searchRE))}</span>, aqui está o relatório ABS da data <span>{formatDate(searchData)}</span>!
+                                Olá, <span>{capitalizeName(getTeamLeaderByRE(searchRE))}</span>, aqui está o relatório <span>ABS</span> da data <span>{formatDate(searchData)}</span>&nbsp;!
                             </h2>
                             <div className="container-tabela">
                                 <table>
@@ -252,7 +242,7 @@ const RelatorioEUpdate = () => {
                                             <th>Turma</th>
                                             <th>Status</th>
                                             <th>Data</th>
-                                            <th>Presença Sistêmica</th>
+                                            <th className="presensa-sistemica">Presença Sistêmica</th>
                                             <th>Validação</th>
                                             <th>Justificativa</th>
                                         </tr>
@@ -271,17 +261,53 @@ const RelatorioEUpdate = () => {
                                                 <td>{item.Turma}</td>
                                                 <td>{item.Status}</td>
                                                 <td>{formatDate(item.DATA)}</td>
-                                                <td>
-                                                    {pendingChanges[item.RepresentantesId]?.Presenca_sistemica || item.Presenca_sistemica}
+                                                <td className="presensa-sistemica">
+                                                    {pendingChanges[item.RepresentantesId]?.Presenca_sistemica !== undefined
+                                                        ? pendingChanges[item.RepresentantesId]?.Presenca_sistemica
+                                                        : item.Presenca_sistemica}
                                                 </td>
                                                 <td>
-                                                    <select
-                                                        value={pendingChanges[item.RepresentantesId]?.Presenca_sistemica || ""}
-                                                        onChange={(e) => handleStatusChange(item.RepresentantesId, e.target.value)}
-                                                    >
-                                                        <option value="">Selecione</option>
-                                                        <option value="Presente">Presente</option>
-                                                        <option value="Falta">Falta</option>
+                                                    <select value={pendingChanges[item.RepresentantesId]?.Presenca_sistemica || ""}
+                                                        onChange={(e) => handleStatusChange(item.RepresentantesId, e.target.value)}>
+                                                         <option value="">Selecione</option>
+                                                            <option value="Presente">Presente</option>
+                                                            <option value="Afastamento">Afastamento</option>
+                                                            <option value="Afastamento-Acd-Trab">Afastamento Acd Trabalho</option>
+                                                            <option value="Atestado">Atestado</option>
+                                                            <option value="Atestado-Acd-Trab">Atestado Acd Trabalho</option>
+                                                            <option value="Atestado-Horas">Atestado Horas</option>
+                                                            <option value="Banco-de-Horas">Banco de Horas</option>
+                                                            <option value="Decl-Medica">Declaração Médica</option>
+                                                            <option value="Falta">Falta</option>
+                                                            <option value="Ferias">Férias</option>
+                                                            <option value="Folga-Escala">Folga Escala</option>
+                                                            <option value="Fretado">Fretado</option>
+                                                            <option value="Licenca">Licença</option>
+                                                            <option value="Presenca-HE">Presença (HE)</option>
+                                                            <option value="Sinergia-CX">Sinergia CX</option>
+                                                            <option value="Sinergia-IN">Sinergia IN</option>
+                                                            <option value="Sinergia-INV">Sinergia INV</option>
+                                                            <option value="Sinergia-Loss">Sinergia Loss</option>
+                                                            <option value="Sinergia-MWH">Sinergia MWH</option>
+                                                            <option value="Sinergia-OUT">Sinergia OUT</option>
+                                                            <option value="Sinergia-Qua">Sinergia Qua</option>
+                                                            <option value="Sinergia-RC01">Sinergia RC01</option>
+                                                            <option value="Sinergia-RC-SP10">Sinergia RC-SP10</option>
+                                                            <option value="Sinergia-RET">Sinergia RET</option>
+                                                            <option value="Sinergia-SP01">Sinergia SP01</option>
+                                                            <option value="Sinergia-SP02">Sinergia SP02</option>
+                                                            <option value="Sinergia-SP03">Sinergia SP03</option>
+                                                            <option value="Sinergia-SP04">Sinergia SP04</option>
+                                                            <option value="Sinergia-SP05">Sinergia SP05</option>
+                                                            <option value="Sinergia-SP06">Sinergia SP06</option>
+                                                            <option value="Sinergia-Sortation">Sinergia Sortation</option>
+                                                            <option value="Sinergia-Suspensao">Sinergia Suspensão</option>
+                                                            <option value="Sinergia-SVC">Sinergia SVC</option>
+                                                            <option value="Transferido">Transferido</option>
+                                                            <option value="Treinamento-Ext">Treinamento Ext</option>
+                                                            <option value="Treinamento-Int">Treinamento Int</option>
+                                                            <option value="Treinamento-REP-III">Treinamento REP III</option>
+                                                            <option value="Sinergia-Insumo">Sinergia Insumo</option>
                                                     </select>
                                                 </td>
                                                 {!viewOnly && (
